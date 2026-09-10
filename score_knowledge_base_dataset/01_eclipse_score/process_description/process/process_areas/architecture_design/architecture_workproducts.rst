@@ -1,0 +1,75 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+.. _arch_workproducts:
+
+Architecture Work Products
+##########################
+
+.. workproduct:: Platform Architecture
+   :id: wp__platform_arch
+   :status: valid
+   :version: 1
+   :complies: std_wp__iso26262__software_751[version==1], std_wp__isosae21434__development_1051[version==1], std_req__aspice_40__iic-04-04[version==1]
+   :tags: doc_lifecycle_model_3
+
+   Platform Architecture describes the overall software structure with the belonging features, modules and their logical interfaces, i.e. top-level decomposition of the platform into features and their interactions
+
+   * Static view - Overview of features, SW modules and their relationships within the platform
+
+.. workproduct:: Feature Architecture
+   :id: wp__feature_arch
+   :status: valid
+   :version: 1
+   :complies: std_wp__iso26262__software_751[version==1], std_wp__isosae21434__development_1051[version==1], std_req__aspice_40__iic-04-04[version==1]
+   :tags: doc_lifecycle_model_3
+
+   Feature Architecture linked to Feature Requirements, i.e. interaction of components
+
+   * Static view (Sphinx Needs) - Feature interfaces (to outside of Feature) and interfaces between own components
+   * Dynamic view (UML) - Sequences of component interactions and state diagrams
+   * Interface view (Sphinx Needs) - Overview of used and provided interfaces
+
+   Technical concept on platform or feature level.
+
+.. workproduct:: Component Architecture
+   :id: wp__component_arch
+   :status: valid
+   :version: 1
+   :complies: std_wp__iso26262__software_751[version==1],
+              std_wp__isopas8926__4523[version==1],
+              std_wp__isosae21434__development_1051[version==1],
+              std_req__aspice_40__iic-04-04[version==1]
+   :tags: doc_lifecycle_model_3
+
+   Component Architecture linked to Component Requirements
+
+   * Static view (Sphinx Needs) - Component interfaces (to outside of component) and interfaces between own (internal) components
+   * Dynamic view (UML) - Sequences of components interactions and components states
+   * Interface view (Sphinx Needs) - Overview of used and provided interfaces
+
+   Technical concept on component level.
+
+.. workproduct:: Architecture Verification
+   :id: wp__sw_arch_verification
+   :status: valid
+   :version: 1
+   :complies: std_wp__iso26262__software_754[version==1]
+   :tags: doc_lifecycle_model_2
+
+   Depends on architecture guideline and tooling.
+   May include several methods like inspection, modelling, ... which are selected in projects SW Verification Plan.
+
+.. needextend:: "c.this_doc()"
+   :+tags: architecture_design

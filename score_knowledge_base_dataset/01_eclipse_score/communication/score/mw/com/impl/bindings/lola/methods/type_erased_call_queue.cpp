@@ -1,0 +1,158 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+#include "score/mw/com/impl/bindings/lola/methods/type_erased_call_queue.h"
+
+#include "score/memory/data_type_size_info.h"
+
+#include "score/memory/shared/memory_resource_proxy.h"
+#include "score/memory/shared/offset_ptr.h"
+#include "score/memory/shared/pointer_arithmetic_util.h"
+
+#include <score/assert.hpp>
+
+#include <cstddef>
+#include <optional>
+#include <tuple>
+
+namespace score::mw::com::impl::lola
+{
+namespace
+{
+
+score::cpp::span<std::byte> GetElement(const std::size_t position,
+                                       const memory::DataTypeSizeInfo& type_info,
+                                       score::cpp::span<std::byte> queue_storage,
+                                       const std::size_t queue_size)
+{
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(position < queue_size);
+
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(queue_storage.size() == (type_info.Size() * queue_size));
+    const auto element_offset = type_info.Size() * position;
+
+    // In our architecture we have a one-to-one mapping between pointers and integral values.
+    // The preconditions above guarantee that element_address will always point inside queue_storage.
+    // Therefore, casting between integers and pointers is well-defined in this case.
+    // NOLINTNEXTLINE(score-banned-function) see above
+    auto* const element_address = memory::shared::AddOffsetToPointer(queue_storage.data(), element_offset);
+
+    return score::cpp::span{element_address, type_info.Size()};
+}
+
+}  // namespace
+
+score::cpp::span<std::byte> GetInArgValuesElementStorage(
+    const size_t position,
+    score::cpp::span<std::byte> in_arg_values_storage,
+    const TypeErasedCallQueue::TypeErasedElementInfo& in_args_type_erased_info)
+{
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(in_args_type_erased_info.in_arg_type_info.has_value());
+    return GetElement(position,
+                      in_args_type_erased_info.in_arg_type_info.value(),
+                      in_arg_values_storage,
+                      in_args_type_erased_info.queue_size);
+}
+
+score::cpp::span<std::byte> GetReturnValueElementStorage(
+    const size_t position,
+    score::cpp::span<std::byte> return_value_storage,
+    const TypeErasedCallQueue::TypeErasedElementInfo& return_type_erased_info)
+{
+    SCORE_LANGUAGE_FUTURECPP_PRECONDITION_PRD(return_type_erased_info.return_type_info.has_value());
+    return GetElement(position,
+                      return_type_erased_info.return_type_info.value(),
+                      return_value_storage,
+                      return_type_erased_info.queue_size);
+}
+
+TypeErasedCallQueue::TypeErasedCallQueue(memory::shared::ManagedMemoryResource& memory_resource,
+                                         const TypeErasedElementInfo& type_erased_element_info)
+    : memory_resource_{memory_resource},
+      type_erased_element_info_{type_erased_element_info},
+      in_args_queue_start_address_{nullptr, 0U},
+      return_queue_start_address_{nullptr, 0U}
+{
+    // If we have neither InArgs nor a Return value, then we don't need to allocate any memory at all.
+    if (!(type_erased_element_info_.in_arg_type_info.has_value() ||
+          type_erased_element_info_.return_type_info.has_value()))
+    {
+        return;
+    }
+    std::tie(in_args_queue_start_address_, return_queue_start_address_) = AllocateQueue();
+}
+
+TypeErasedCallQueue::~TypeErasedCallQueue() noexcept
+{
+    if (in_args_queue_start_address_.data != nullptr)
+    {
+        memory_resource_.deallocate(in_args_queue_start_address_.data.get(), in_args_queue_start_address_.size);
+    }
+    if (return_queue_start_address_.data != nullptr)
+    {
+        memory_resource_.deallocate(return_queue_start_address_.data.get(), return_queue_start_address_.size);
+    }
+}
+
+std::optional<score::cpp::span<std::byte>> TypeErasedCallQueue::GetInArgValuesQueueStorage() const
+{
+    if (!(type_erased_element_info_.in_arg_type_info.has_value()))
+    {
+        return {};
+    }
+    return {{in_args_queue_start_address_.data.get(), in_args_queue_start_address_.size}};
+}
+
+std::optional<score::cpp::span<std::byte>> TypeErasedCallQueue::GetReturnValueQueueStorage() const
+{
+    if (!(type_erased_element_info_.return_type_info.has_value()))
+    {
+        return {};
+    }
+    return {{return_queue_start_address_.data.get(), return_queue_start_address_.size}};
+}
+
+auto TypeErasedCallQueue::GetTypeErasedElementInfo() const& -> const TypeErasedElementInfo&
+{
+    return type_erased_element_info_;
+}
+
+std::pair<TypeErasedCallQueue::OffsetPtrSpan, TypeErasedCallQueue::OffsetPtrSpan> TypeErasedCallQueue::AllocateQueue()
+    const
+{
+    std::byte* in_args_queue_start_address_bytes{nullptr};
+    std::size_t in_args_queue_size{0U};
+    if (type_erased_element_info_.in_arg_type_info.has_value())
+    {
+        const auto& in_arg_type_info = type_erased_element_info_.in_arg_type_info.value();
+        const auto required_size = in_arg_type_info.Size() * type_erased_element_info_.queue_size;
+        void* const in_args_queue_start_address =
+            memory_resource_.allocate(required_size, in_arg_type_info.Alignment());
+        in_args_queue_start_address_bytes = static_cast<std::byte*>(in_args_queue_start_address);
+        in_args_queue_size = in_arg_type_info.Size() * type_erased_element_info_.queue_size;
+    }
+
+    std::byte* return_queue_start_address_bytes{nullptr};
+    std::size_t return_queue_size{0U};
+    if (type_erased_element_info_.return_type_info.has_value())
+    {
+        const auto& return_type_info = type_erased_element_info_.return_type_info.value();
+        const auto required_size = return_type_info.Size() * type_erased_element_info_.queue_size;
+        void* const return_queue_start_address = memory_resource_.allocate(required_size, return_type_info.Alignment());
+        return_queue_start_address_bytes = static_cast<std::byte*>(return_queue_start_address);
+        return_queue_size = return_type_info.Size() * type_erased_element_info_.queue_size;
+    }
+
+    return {{in_args_queue_start_address_bytes, in_args_queue_size},
+            {return_queue_start_address_bytes, return_queue_size}};
+}
+
+}  // namespace score::mw::com::impl::lola

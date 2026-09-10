@@ -1,0 +1,9 @@
+[project]
+name = "score-kb-ingestion"
+version = "0.1.0"
+description = "S-CORE knowledge-base ingestion for Cloud Run"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-storage>=3.13.1",
+    "voyageai>=0.5.0",
+]

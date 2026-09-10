@@ -1,0 +1,33 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+Component Architecture Template
+###############################
+
+.. gd_temp:: Component Architecture Templates
+   :id: gd_temp__arch_comp
+   :status: valid
+   :version: 1
+   :tags: architecture_design
+   :complies: std_req__iso26262__software_741[version==1],
+              std_req__iso26262__software_742[version==1],
+              std_req__iso26262__software_743[version==1],
+              std_req__iso26262__software_744[version==1],
+              std_req__aspice_40__iic-04-04[version==1]
+
+   For the content see the
+   `module template documentation <https://eclipse-score.github.io/module_template/main/components/component_example/architecture/component_architecture.html>`__.
+
+.. needextend:: "c.this_doc()"
+   :+tags: architecture_design

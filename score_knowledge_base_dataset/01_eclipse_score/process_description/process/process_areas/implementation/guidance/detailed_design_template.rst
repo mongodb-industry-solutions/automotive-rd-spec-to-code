@@ -1,0 +1,33 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+
+Detailed Design Template
+########################
+
+.. gd_temp:: Detailed Design Templates
+   :id: gd_temp__detailed_design
+   :status: valid
+   :version: 1
+   :complies: std_req__iso26262__software_542[version==1],
+              std_req__iso26262__support_641[version==1],
+              std_req__iso26262__support_6421[version==1],
+              std_req__iso26262__support_6425[version==1],
+              std_req__iso26262__software_744[version==1],
+              std_req__aspice_40__iic-04-05[version==1]
+
+   For the content see here: `Detailed Design Template <https://eclipse-score.github.io/module_template/main/components/component_example/detailed_design/index.html>`__
+
+.. needextend:: "c.this_doc()"
+   :+tags: implementation

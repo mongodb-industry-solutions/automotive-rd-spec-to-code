@@ -1,0 +1,92 @@
+# Ingestion allowlist
+#
+# Everything is ignored unless explicitly re-included below. Ingestion should
+# enumerate non-ignored files (for example, with `git ls-files --others
+# --cached --exclude-standard`) rather than walking the dataset directly.
+#
+# Keep directories traversable so negated file patterns can match.
+*
+!*/
+!/.gitignore
+
+# ---------------------------------------------------------------------------
+# 1. S-CORE process knowledge needed by the SWE.1 -> SWE.4 workflow
+# ---------------------------------------------------------------------------
+
+# ASPICE Software Engineering base practices used by the POC.
+!/01_eclipse_score/process_description/process/standards/aspice_40/swe/swe.1.rst
+!/01_eclipse_score/process_description/process/standards/aspice_40/swe/swe.2.rst
+!/01_eclipse_score/process_description/process/standards/aspice_40/swe/swe.3.rst
+!/01_eclipse_score/process_description/process/standards/aspice_40/swe/swe.4.rst
+
+# S-CORE guidance and templates for requirements, architecture, implementation,
+# and verification. Assets and generated documentation remain ignored.
+!/01_eclipse_score/process_description/process/process_areas/requirements_engineering/**/*.rst
+!/01_eclipse_score/process_description/process/process_areas/architecture_design/**/*.rst
+!/01_eclipse_score/process_description/process/process_areas/architecture_design/**/*.puml
+!/01_eclipse_score/process_description/process/process_areas/implementation/**/*.rst
+!/01_eclipse_score/process_description/process/process_areas/verification/**/*.rst
+
+# Process graph concepts and definitions.
+!/01_eclipse_score/process_description/process/general_concepts/*.rst
+!/01_eclipse_score/process_description/process/roles/**/*.rst
+!/01_eclipse_score/process_description/process/workproducts/**/*.rst
+!/01_eclipse_score/process_description/process/workflows/**/*.rst
+
+# ---------------------------------------------------------------------------
+# 2. Compliant document templates
+# ---------------------------------------------------------------------------
+
+!/01_eclipse_score/module_template/README.md
+!/01_eclipse_score/module_template/docs/**/*.rst
+!/01_eclipse_score/module_template/score/component_example/docs/**/*.rst
+!/01_eclipse_score/module_template/score/component_example/docs/**/*.puml
+
+# ---------------------------------------------------------------------------
+# 3. Traceable requirements and a small, relevant S-CORE code sample
+# ---------------------------------------------------------------------------
+
+# Typed requirements with IDs, ASIL metadata, versions, and derived_from links.
+!/01_eclipse_score/communication/**/*.trlc
+
+# Architecture context for the selected message-passing example.
+!/01_eclipse_score/communication/score/message_passing/dependability/software_architectural_design/**/*.md
+!/01_eclipse_score/communication/score/message_passing/dependability/software_architectural_design/**/*.puml
+
+# Fixed/non-allocating queue examples and their tests.
+!/01_eclipse_score/communication/score/message_passing/timed_command_queue.h
+!/01_eclipse_score/communication/score/message_passing/timed_command_queue_entry.h
+!/01_eclipse_score/communication/score/message_passing/timed_command_queue.cpp
+!/01_eclipse_score/communication/score/message_passing/timed_command_queue_test.cpp
+!/01_eclipse_score/communication/score/message_passing/non_allocating_future/README.md
+!/01_eclipse_score/communication/score/mw/com/impl/bindings/lola/methods/type_erased_call_queue.h
+!/01_eclipse_score/communication/score/mw/com/impl/bindings/lola/methods/type_erased_call_queue.cpp
+!/01_eclipse_score/communication/score/mw/com/impl/bindings/lola/methods/type_erased_call_queue_test.cpp
+
+# ---------------------------------------------------------------------------
+# 4. Executable C++ policy references
+# ---------------------------------------------------------------------------
+
+!/01_eclipse_score/score_cpp_policies/README.md
+!/01_eclipse_score/score_cpp_policies/clang_tidy/README.md
+!/01_eclipse_score/score_cpp_policies/clang_tidy/.clang-tidy
+!/01_eclipse_score/score_cpp_policies/sanitizers/README.md
+
+# ---------------------------------------------------------------------------
+# 5. C++ engineering rules
+# ---------------------------------------------------------------------------
+
+!/03_coding_standards/cpp_core_guidelines/CppCoreGuidelines.md
+
+# ---------------------------------------------------------------------------
+# 6. Sphinx-Needs syntax and interchange schema
+# ---------------------------------------------------------------------------
+
+!/04_docs_as_code_specs/sphinx_needs/docs/directives/*.rst
+!/04_docs_as_code_specs/sphinx_needs/sphinx_needs/needsfile.json
+
+# Intentionally excluded:
+# - 02_aspice_process_models: derived JSON conflicts with S-CORE ASPICE sources.
+# - Sphinx-Needs implementation/tests: executable tooling and test fixtures.
+# - Bulk platform source, third_party, CI, lock files, generated HTML, and assets.
+# - SWE.5/SWE.6: outside the initial unit-level SWE.1 -> SWE.4 POC.

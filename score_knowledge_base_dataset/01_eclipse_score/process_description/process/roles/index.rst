@@ -1,0 +1,221 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2024 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+.. _roles:
+
+Roles
+=====
+
+Project Management Roles
+------------------------
+
+.. role:: Project Lead
+   :id: rl__project_lead
+   :status: valid
+   :version: 1
+   :tags: process_management
+
+   The Project Leads decide about strategy, approve feature requests and perform the
+   project management of the <Project>.
+
+   Required skills
+
+   * Degree: Master's degree in electrical engineering/computer science/mathematics, or similar degree, or comparable work experience
+   * Solid understanding of project management
+   * Technical know-how of embedded systems
+   * Preferred training: Basic and Management specific safety and security trainings
+
+   Experience
+
+   * 3 years of experience in project or line management
+
+   Responsibility
+
+   * Decisions about strategical topics
+   * Filling the Project Lead role according to the `Eclipse Foundation Project Handbook <https://www.eclipse.org/projects/handbook>`_
+   * Review and approval of contributions, e.g. Feature Requests, which add or modify features
+   * Project management of the <Project> development - i.e. filling the project management role as defined by ISO26262
+   * High-level project control and coordination between multiple software modules
+   * Escalation instance
+   * Planning and Approval the releases of the <Project>
+   * Approves security related artifacts likes security plan, security audit, security reviews, SBOM, security monitoring/verification, security trainings and including status reporting of security activities
+
+   Authority
+
+   * Ultimate decisions on escalated topics
+   * Decide on addition/removal of modules repositories or split-off of projects
+
+Project Process Roles
+---------------------
+
+.. role:: Process Community Member
+   :id: rl__process_community
+   :status: valid
+   :version: 1
+   :tags: process_management
+   :contains: rl__committer[version==1]
+
+   The process community members are responsible for the definition of the process architecture of the project integrated management system and how they processes interact.
+   The approval and release of the process is done by the safety, quality and security managers and the project leads (for the parts which affect them).
+
+Project Development Roles
+-------------------------
+
+.. role:: Infrastructure Tooling Community Member
+   :id: rl__infrastructure_tooling_community
+   :status: valid
+   :version: 1
+   :tags: development
+   :contains: rl__committer[version==1]
+
+   The infrastructure and tooling community members are responsible for the infrastructure and tooling setup for development, but also the rest of the tool chain.
+
+.. role:: Contributor
+   :id: rl__contributor
+   :status: valid
+   :version: 1
+   :tags: development
+
+   (Eclipse) Open Source Role, person(s) who provide(s) possible contribution(s) as pull request(s) to the main line.
+   Any contributor which contributes code, tests or documentation to the project.
+
+   .. note::
+      Follows the processes defined by the :need:`rl__process_community`
+
+.. role:: Committer
+   :id: rl__committer
+   :status: valid
+   :version: 1
+   :tags: development
+
+   (Eclipse) Open Source Role, person(s) who accept(s) possible contribution(s) as pull request(s) to the main line and maintains the product.
+
+   Required skills and knowledge of standards
+
+   * Experience in reviewing architectural designs for correctness, consistency, and completeness
+   * Knowledge of ASPICE SWE.2 base practices
+   * Understanding of traceability requirements between architecture and requirements
+   * Understanding of software design patterns and principles (e.g., SOLID, separation of concerns)
+   * Knowledge of the platform domain (middleware, OS abstraction, communication)
+   * Ability to work with Sphinx-Needs and PlantUML tooling
+   * Understanding of safety/security attributes and their impact on architecture
+   * Knowledge of existing architecture examples in module template
+   * Knowledge of UML notation (component diagrams, sequence diagrams)
+
+
+   .. note::
+      Defines and enforces processes.
+
+.. role:: Testing Community Member
+   :id: rl__testing_community
+   :status: valid
+   :version: 1
+   :tags: verification
+   :contains: rl__committer[version==1]
+
+   The testing community members are responsible for the test case development from component to
+   platform level. They shall be included in any requirements reviews. They can also improve
+   independence argumentation when involved in the development of unit testing on safety critical
+   units. In this way the testing community takes a supportive role for unit testing.
+
+.. role:: Architecture Community Member
+   :id: rl__architecture_community
+   :status: valid
+   :version: 1
+   :tags: architecture_design
+   :contains: rl__committer[version==1]
+
+   The architecture community members are responsible for the features and components of
+   the platform. Feature and Components requests, which add new ones or modifications, are
+   in their responsibility. They are aligned with the Project Leads.
+
+.. role:: Project Security Team
+   :id: rl__security_team
+   :status: valid
+   :version: 1
+   :tags: verification, security_analysis
+   :contains: rl__committer[version==1], rl__security_engineer[version==1]
+
+   (Eclipse) Open Source Role, person(s) who is(are) responsible for coordinating the resolution of Vulnerabilities within the Project.
+   By default, the project Security Team includes all Committers. However, the Project may choose a different arrangement and establish specific criteria for team nominations.
+
+Project Teams
+-------------
+
+.. role:: Platform Team
+   :id: rl__platform_team
+   :status: valid
+   :version: 1
+   :tags: cross_functional
+   :contains: rl__project_lead[version==1],
+              rl__safety_manager[version==1],
+              rl__quality_manager[version==1],
+              rl__security_manager[version==1],
+              rl__contributor[version==1],
+              rl__committer[version==1],
+              rl__infrastructure_tooling_community[version==1],
+              rl__process_community[version==1],
+              rl__architecture_community[version==1]
+
+   The platform team is responsible for all artifacts within the platform SEooC.
+   Additionally it is also responsible for the overall process including its support
+   by tooling.
+   Depending on the platform artifacts, some of them are assigned as codeowner.
+
+.. role:: Delivery Team
+   :id: rl__delivery_team
+   :status: valid
+   :version: 1
+   :tags: cross_functional
+   :contains: rl__safety_manager[version==1],
+              rl__quality_manager[version==1],
+              rl__security_manager[version==1],
+              rl__contributor[version==1],
+              rl__committer[version==1]
+
+   The delivery team is responsible for all artifacts within the Delivery Container
+   SEooCs containing the Dependable Elements. Each Delivery Container has only one
+   responsible team.
+   One of the committers in the team acts as the "Project Manager" and is responsible
+   for planning and reporting.
+   Depending on the delivery container artifacts, some of them are assigned as codeowner.
+
+.. role:: Release Team
+   :id: rl__release_team
+   :status: valid
+   :version: 1
+   :tags: cross_functional
+   :contains: rl__safety_manager[version==1],
+              rl__quality_manager[version==1],
+              rl__security_manager[version==1],
+              rl__contributor[version==1],
+              rl__committer[version==1]
+
+   The release team is responsible for the release. The release team consists of different stakeholders like
+   module leads, project leads and quality managers.
+
+Project Roles List
+------------------
+
+.. needtable::
+   :style: table
+   :columns: title;id;tags
+   :colwidths: 25,25,25
+   :sort: title
+
+   results = []
+
+   for need in needs.filter_types(["role"]):
+         if need['is_external'] == False:
+                results.append(need)

@@ -1,0 +1,206 @@
+..
+   # *******************************************************************************
+   # Copyright (c) 2025 Contributors to the Eclipse Foundation
+   #
+   # See the NOTICE file(s) distributed with this work for additional
+   # information regarding copyright ownership.
+   #
+   # This program and the accompanying materials are made available under the
+   # terms of the Apache License Version 2.0 which is available at
+   # https://www.apache.org/licenses/LICENSE-2.0
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   # *******************************************************************************
+
+Guideline
+=========
+.. gd_guidl:: Verification Guideline
+   :id: gd_guidl__verification_guide
+   :status: valid
+   :version: 2
+   :complies: std_req__isopas8926__445[version==1]
+
+   This guideline outlines the responsibilities and procedures for developers performing
+   verification activities (testcase creation, inspection, and review) for documentation,
+   code (like Rust and C/C++) elements of the project/platform and its tooling.
+
+   Note that rust, python and gTest are used for test case creation.
+
+General Principles
+------------------
+
+* **Verification is everyone's responsibility:** While dedicated testing responsible may exist, every developer is
+  accountable for the quality and correctness of their code and related artifacts.
+* **Early and often:** Verification activities should be integrated throughout the development lifecycle,
+  not just at the end. This includes unit tests, integration tests, code reviews, and inspections.
+* **Traceability:** All verification activities should be traceable to requirements, architectural design, etc.
+* **Independence:** Where possible, verification activities should be performed by someone other than the original author of the code or documentation.
+* **Documentation:** All verification activities and their results must be documented appropriately.
+
+More details on the test strategy and execution can be found in the verification plan implemented by
+:need:`wp__verification_plan` of the project.
+
+
+Test Case Description
+---------------------
+
+A good test description clearly explains the purpose and scope of a test case.
+It provides enough information for anyone (including someone unfamiliar with the system) to understand
+what is being tested and how.
+
+Basic qualities of a good test case description are that the test is:
+  - Clear: Easy to understand and avoids ambiguity.
+  - Specific: Provides enough detail to reproduce the test.
+  - Measurable: Defines clear pass/fail criteria.
+  - Complete: Covers all relevant aspects of the test.
+
+Test specifications should follow :need:`gd_guidl__verification_specification`
+
+Structuring of the Test Case
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To fulfill the demands of the work product :need:`wp__verification_plan` the
+templates in :ref:`verification_process_reqs` shall be used and the :need:`gd_guidl__verification_specification`
+should be followed . This includes general information and templates for the allowed programming languages.
+
+
+Verify Requirements Execution Work Flow
+---------------------------------------
+
+Simplified in a nutshell:
+
+#. Implement test case
+#. Link test case to requirements and specify metatags
+#. Confirm requirement test coverage by creating linkage document
+#. Set requirement attribute [testcovered=YES] during software build
+
+More information on the concept of requirements verification can be found in :ref:`requirement_verification_workflow`
+
+A more detailed description of how to link code to requirements is available here: :need:`gd_req__verification_link_tests`
+
+Traceability matrix and consistency checks will be automatically established with tool support.
+
+Two properties exists; one to show partial and one to show full coverage of a requirement.
+For multiple test cases having a "partial coverage" a review has to be conducted to confirm
+that a requirement is fully covered. The pull request description should indicate which requirements
+are fully covered by the PR commits and which test cases are needed to fully cover the test case.
+This is important, as multiple PRs may be needed to fully verify a single requirement.
+This information is later on used to set the requirement attribute to `yes` as mentioned by :need:`gd_req__req_attr_test_covered`
+which shows that the set of partially covering test cases in sum fully satisfy the requirement.
+
+
+Test case execution
+-------------------
+
+The execution of the tests is based on a full automation defined by build pipelines.
+The analysis of the test results needs to be performed by the contributor.
+
+In order to check the test results for the impact of a change or addition, it is recommended to
+execute affected test cases locally upfront using the execution framework of the build tooling
+following basically the steps the CI does locally.
+
+Tests have to be identifiable by a unique identifier, as described in :need:`gd_guidl__verification_specification`.
+They need to have a clear pass/fail result and a documented configuration to enable proper evaluation of the result.
+
+Automated tests can also be executed locally, as the sources and binaries are available for re-execution.
+Failing test cases during re-execution can be reported following the guide :need:`gd_temp__problem_template`.
+
+During a release, for any non-executed test case, the reason for non-execution must be documented in the
+:need:`wp__platform_sw_release_note` or :need:`wp__module_sw_release_note` depending on the level (unit to platform) of the test case.
+
+Execution of manual test cases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There may be the need for limited number of manually executed test cases.
+These manually executed test cases are execution script driven, where a script guides through the
+test cases and reports the result in the same logging format as automated tests do.
+This enables parsable execution logs which can be used in automated test result collection.
+Failing test cases during manual execution are reported by following the guide :need:`gd_temp__problem_template`.
+
+Also manual test cases are written following the :need:`gd_guidl__verification_specification` and have a unique identifier.
+
+A tag `manual` is suggested to mark the test case as manual, so that it can be filtered out from automated test execution.
+
+In case a manual test case is not executed for a release, the reason for non-execution has to be documented in the
+:need:`wp__platform_sw_release_note` or :need:`wp__module_sw_release_note` depending on the level of the test case.
+
+Reporting of failing test cases
+-------------------------------
+
+Any failing test case requires an ISSUE.
+
+The passing rate of safety-critical test cases needs to be 100% in order to release the affected component.
+In case of a lower pass rate than 100% for QM level tests, the :need:`rl__project_lead`
+can decide if the platform is in a releasable state. The accepted minimal pass rate is defined
+in the :need:`wp__verification_plan`. Due to the high degree of automation, it is recommended
+that a pass rate lower than 95% is not acceptable. This percentage may increase with the maturity of
+the overall platform and the test coverage.
+
+In case an existing test case is failing due to regression in the CI, the PR author in their role as
+:need:`rl__contributor` is responsible for fixing the test case as part of the respective PR.
+
+Test case results are also documented in the :need:`wp__verification_platform_ver_report` and
+:need:`wp__verification_module_ver_report`.
+
+Reporting of not executed or skipped test cases
+-----------------------------------------------
+
+In case a test case is not executed or skipped, a rationale has to be provided in the release notes
+if the test case is linked to a requirement. A skipped or non-executed test case does not count towards
+requirement coverage, as only executed and passed test cases can be counted for the coverage of a requirement.
+
+Skipped or not executed test cases are also documented in the :need:`wp__verification_platform_ver_report` and
+:need:`wp__verification_module_ver_report`.
+
+Reuse of existing test cases
+----------------------------
+
+In case pre-existing test cases from components can be used, they have to be reviewed and checked
+for their fit to the defined requirements. The test cases should get patch files to cover missing
+specification parts following :need:`gd_guidl__verification_specification` and have the necessary
+:need:`gd_req__verification_link_tests` followed. These patches are applied on top of the untouched actual
+implementation of the software code.
+
+Additionally needed test cases should be added as standalone parts. They are developed as any
+other test case as part of the platform. If upstreaming of the newly created tests is judged as
+useful, this shall be planned and added to the project milestone plan.
+
+Verification types and methods
+------------------------------
+
+Verification types and methods are described in the :need:`gd_meth__verification_methods` and the
+derivation techniques in :need:`gd_meth__verification_derivation`. The detailed method guideline
+helps to get an understanding what the different methods and derivation techniques mean and how to
+create test cases using the same.
+
+Tailoring
+=========
+.. gd_guidl:: Verification Requirements Tailored
+   :id: gd_guidl__verification_req_tailored
+   :status: valid
+   :version: 1
+   :complies: std_req__iso26262__software_945[version==1],
+              std_req__iso26262__software_1045[version==1],
+              std_req__iso26262__software_1046[version==1],
+              std_req__iso26262__software_1047[version==1],
+              std_req__iso26262__software_1141[version==1],
+              std_req__iso26262__software_1142[version==1],
+              std_req__iso26262__software_1143[version==1],
+              std_req__iso26262__software_1144[version==1]
+
+   This part of the guideline links to all the requirements which are not fulfilled by the
+   verification process. Make sure these are tailored out in the safety/security/quality plans
+   for your project (documented in the PMP). Reasoning given below must be confirmed there.
+
+   The reasoning is:
+
+   - For SW requirement 945 & 1047 tests are executed in target environment regarding code and hardware architecture.
+     An integrator of the software can re-execute them on source or unmodified binary in the product environment.
+   - For SW requirement 1045 "Function and call coverage" are not considered explicitly due to lower target safety integrity level (ASIL_B).
+   - For SW requirement 1046 the software is not a production release, but work for the system integrator or distributor with a production release.
+   - For SW requirement 1141, 1143, 1144 the SW only points to AoUs, but will not be executed on the final product environment as part of the project scope.
+   - For SW requirement 1142 there will be :need:`wp__verification_platform_int_test` available for re-use, but they are not supposed to deliver full coverage.
+     Fault Injection Testing is not considered for higher level integration testing.
+
+.. needextend:: "c.this_doc()"
+   :+tags: verification

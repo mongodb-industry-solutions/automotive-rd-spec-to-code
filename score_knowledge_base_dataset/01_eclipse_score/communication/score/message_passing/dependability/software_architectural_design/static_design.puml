@@ -1,0 +1,41 @@
+' *******************************************************************************
+' Copyright (c) 2026 Contributors to the Eclipse Foundation
+'
+' See the NOTICE file(s) distributed with this work for additional
+' information regarding copyright ownership.
+'
+' This program and the accompanying materials are made available under the
+' terms of the Apache License Version 2.0 which is available at
+' https://www.apache.org/licenses/LICENSE-2.0
+'
+' SPDX-License-Identifier: Apache-2.0
+' *******************************************************************************
+
+@startuml
+
+interface "score::message_passing" as message_passing_public_api
+interface "OS" as os
+
+component "Message Passing" as dependable_element_message_passing <<SEooC>> {
+
+    component "Message Passing" as component_message_passing <<component>> {
+
+        component "ClientConnection" as client_connection <<unit>>
+
+        component "ServerConnection" as server_connection <<unit>>
+
+        component "Dispatch" as dispatch <<component>> {
+            component "QNX Dispatch" as qnx_dispatch <<unit>>
+            component "Unix Domain" as unix_domain <<unit>>
+        }
+    }
+    portout " " as message_passing_public_api_port
+    portin " " as port_os
+    dispatch -u[hidden]- server_connection
+    dispatch -u[hidden]- client_connection
+}
+
+message_passing_public_api -r-() message_passing_public_api_port
+port_os -u-( os : uses
+
+@enduml

@@ -1,0 +1,1365 @@
+/********************************************************************************
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+package Communication
+
+import ScoreReq
+
+section "com" {
+
+    section "Public_API_Specification" {
+
+        section "Common_API_Types" {
+
+            /* broken_link_c/issue/21778053 */
+            ScoreReq.CompReq TypesHeaderFile {
+                description = '''All common API types provided by {{mw::com}} and used within PUBLIC interfaces of {{mw::com}} shall be accessible via inclusion of {{/mw/com/types.h}}
+
+                All common API types are enlisted under Common API Types.
+
+                Note: Generated types (e.g. types depending on the individual service interface definition described by an IDL) are excluded here!'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+            }
+
+            /* broken_link_c/issue/14034769 */
+            ScoreReq.CompReq SubscriptionState {
+                description = '''The SubscriptionState for an {{Event}} or {{Field}} shall be located  in namespace {{mw::com}} and shall have the following definition:
+
+                {{{enum class SubscriptionState : std::uint8\_t {
+                  kSubscribed,
+                  kNotSubscribed,
+                  kSubscriptionPending
+                };}}}
+
+                The SubscriptionState expresses the state of a event or field subscription on the consumer/proxy side. The semantics of the enum values shall be:
+
+                * {{kSubscribed}}: Subscription has been successfully acknowledged by the provider side and the consumer has not been notified that the service is no longer offered (either the provider has called stop_offer() or crashed).
+
+                * {{kNotSubscribed}}:In case of the following cases:
+
+                  * Subscribe() has not been called or the last successful Subscribe() has been withdrawn with call to Unsubscribe()
+
+                  * Last call to Subscribe() has been rejected/negatively acknowledged by the provider side.
+
+                * {{kSubscriptionPending}}:
+
+                  * Subscription() call is:
+
+                  ** in the state to being dispatched to the provider side
+
+                  ** has been already dispatched to the provider side, but acknowlegde from provider side is pending
+
+                  * state was already in {{kSubscribed}}, but then the consumer has been notified that the whole enclosing providing service instance has stopped offering. This is the "auto-reconnect mode". As soon as the consumer is notified that the service instance is being offered again, the state would transition back to {{kSubscribed}}.'''
+
+                note = "The notification to the consumer that the provider has stopped offering may be delayed"
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.ProducerConsumerPattern@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/14035954 */
+            ScoreReq.CompReq EventReceiveHandler {
+                description = '''{{mw::com}} shall provide the definition of {{EventReceiveHandler}} in namespace {{bmw::mw::com}} as a function wrapper without parameters for the handler function that gets called by the {{mw::com}} implementation in case new event data arrives for an event. The event receiver must provide the function implementation which is not required to be re-entrant.
+
+                I.e. the {{mw::com}} implementation assures call serialization to an {{EventReceiveHandler}} instance for a given event instance.
+
+                The signature of an EventReceiveHandler is:
+
+                {{{void(void)}}}
+
+                {{GetNewSamples}}
+
+                The {{EventReceiveHandler}} constitutes a function without parameters and has to use the  method of the specific class instance to which it's passed to access the retrieved event data.
+
+                The type chosen for {{EventReceiveHandler}} by the {{mw::com}} provider shall allow construction from any callable, with the given signature.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.EventType@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/18805500 */
+            ScoreReq.CompReq SubscriptionStateChangeHandler {
+                description = '''{{mw::com}} shall provide the definition of {{SubscriptionStateChangeHandler}} in namespace {{mw::com}} as a function wrapper for the handler function that gets called by the {{mw::com}} implementation in case the {{SubscriptionState}} (see SubscriptionState) of an event has changed. The event receiver must provide the function implementation which is not required to be re-entrant for the same event instance.
+
+                I.e. the {{mw::com}} implementation assures call serialization to an {{SubscriptionStateChangeHandler}} instance for a given event instance.
+
+                The signature of an SubscriptionStateChangeHandler is:
+
+                {{{bool(SubscriptionState)}}}
+
+                The type chosen for {{SubscriptionStateChangeHandler}} by the {{mw::com}} provider shall allow construction from any callable, with the given signature.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@1, Communication.EventType@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/14116410 */
+            ScoreReq.CompReq HandleType {
+                description = '''{{mw::com}} implementation shall provide the definition of {{HandleType}}. It types the handle for a specific service instance and shall contain the information that is needed to create a ServiceProxy (either a TypedProxy or a GenericProxy)
+
+                The definition of the {{HandleType}} can be extended by the {{mw::com}} implementation provider, but at least the given class and class method signatures must be preserved.
+
+                {{HandleType}} shall satisfy the EqualityComparable requirements according to table 17 and the LessThanComparable requirements according to table 18 of section 17.6.3.1 of [ISO/IEC 14882:2011]. These requirements are fulfilled if the following operators are provided: operator== and operator<.
+
+                {{HandleType}} shall allow:
+
+                * copy construction and assignment
+
+                * move construction and assignment
+
+                so that it allows storing and managing {{HandleType}}s in C++ container classes by the using application.
+
+                The definition of the {{HandleType}} class shall be located inside the ServiceProxy class defined by {{TypedProxy}} or a {{GenericProxy}}. This allows the {{mw::com}} implementation to provide handles with different implementation dependent on the binding of the represented service.
+
+                {{{class HandleType {
+                 public:
+                 bool operator==(const HandleType& other) const;
+                 bool operator<(const HandleType& other) const;
+                 const ara::com::InstanceIdentifier& GetInstanceId() const;
+                }
+                }}}
+
+                Since the {{mw::com/LoLa}} is responsible for creation of handles and the application just uses instances of it, the constructor signature is not part of the {{HandleType}} specification, but the constructor shall not be public.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21792716 */
+            ScoreReq.CompReq ServiceHandleContainer {
+                description = '''{{mw::com}} shall provide a class {{ServiceHandleContainer}} in namespace {{bmw::mw::com}}, which acts as a container for instances of HandleType Class
+
+                {{ServiceHandleContainer}} must adhere to the following  C++ named requirements: `SequenceContainer <https://en.cppreference.com/w/cpp/named\_req/SequenceContainer>`\_
+                A std::vector for example fulfills these requirements.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.ServiceDiscovery@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21470910 */
+            ScoreReq.CompReq SamplePtr {
+                description = '''{{mw::com}}''SamplePtr''object. shall provide a  template which provides a pointer to a managed data
+
+                The implementation shall at least contain the following interface:
+
+                {{{template< typename T >
+                class SamplePtr {
+
+                  // Default constructor
+                  constexpr SamplePtr() noexcept;
+
+                  // semantically equivalent to Default constructor
+                  constexpr SamplePtr(nullptr\_t) noexcept;
+
+                  // Copy constructor is deleted
+                  SamplePtr ( const SamplePtr& ) = delete;
+
+                  // Move constructor
+                  SamplePtr( SamplePtr&& ) noexcept;
+
+                  // Default copy assignment operator is deleted
+                  SamplePtr& operator=( const SamplePtr& ) = delete;
+
+                  // Assignment of nullptr\_t
+                  SamplePtr& operator=(nullptr\_t) noexcept;
+
+                  // Move assignment operator
+                  SamplePtr& operator=( SamplePtr&& ) noexcept;
+
+                  // Dereferences the stored pointer
+                  T& operator() const noexcept;
+                  T operator->() const noexcept;
+
+                  //Checks if the stored pointer is null
+                  explicit operator bool () const noexept;
+
+                  // Swaps the managed object
+                  void Swap ( SamplePtr& ) noexcept;
+
+                  //Replaces the managed object
+                  void Reset (nullptr\_t) ;
+
+                  //Returns the stored object
+                  T Get () const noexcept;
+
+                };}}}
+
+                Note. The dereference operator {{T& operator() const noexcept}} will only be defined when the template type {{T}} of the SamplePtr is not {{void}}.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.UseProgrammingLanguageInfrastructure@1, Communication.ZeroCopy@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21470937 */
+            ScoreReq.CompReq SampleAllocateePtr {
+                description = '''{{mw::com}}sample allocated by the binding. shall provide the definition of {{SampleAllocateePtr}} as a pointer to a data
+
+                The public interface shall at least provide the following interface:
+
+                {{{template< typename T >
+                class SampleAllocateePtr {
+
+                  // Default constructor
+                  constexpr SampleAllocateePtr() noexcept;
+
+                  // semantically equivalent to Default constructor
+                  constexpr SampleAllocateePtr(std::nullptr\_t) noexcept;
+
+                  // Copy constructor is deleted
+                  SampleAllocateePtr( const SampleAllocateePtr& ) = delete;
+
+                  // Move constructor
+                  SampleAllocateePtr( SampleAllocateePtr&& ) noexcept;
+
+                  // Default copy assignment operator is deleted
+                  SampleAllocateePtr& operator=( const SampleAllocateePtr& ) = delete;
+
+                  // Assignment of nullptr\_t
+                  SampleAllocateePtr& operator=(std::nullptr\_t) noexcept;
+
+                  // Move assignment operator
+                  SampleAllocateePtr& operator=( SampleAllocateePtr&& ) noexcept;
+
+                  // Dereferences the stored pointer
+                  T& operator() const noexcept;
+                  T operator->() const noexcept;
+
+                  //Checks if the stored pointer is null
+                  explicit operator bool () const noexept;
+
+                  // Swaps the managed object
+                  void Swap ( SampleAllocateePtr& ) noexcept;
+
+                  //Returns the stored object
+                  T Get () const noexcept;
+
+                };}}}'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.ZeroCopy@1]
+                version = 1
+            }
+
+            section "InstanceSpecifier" {
+
+                /* broken_link_c/issue/18443828 */
+                ScoreReq.CompReq InstanceSpecifierCreate {
+                    description = '''The {{InstanceSpecifier}}
+
+                     class shall provide a non-throwing constructor using the Named Constructor idiom (See progress-cursor Creation of an object using Named Constructor approach
+
+                    {{{static bmw::Result<InstanceSpecifier> InstanceSpecifier::Create(amp::string\_view shortname\_path) noexcept;}}}
+
+                    Arguments:
+
+                    *  shortname\_path: a shortname path whose behaviour is described in Shortname path.
+
+                    Return value: returned {{bmw::Result}} which contains
+
+                    *  a {{bmw::Result::Error}} containing the value {{ComErrc::kInvalidMetaModel}} Shortnamewhen {{shortname\_path}} doesn't adhere to the specifications described in Shortname path.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18442825 */
+                ScoreReq.CompReq InstanceSpecifierConstructor {
+                    description = '''The constructor of the class {{InstanceSpecifier}}
+                    shall be private.
+
+                    Note: Construction of an {{InstanceSpecifier}} instance by the user shall only be possible via the public static {{Create()}} method (See InstanceSpecifier Create).
+
+                    Therefore the signature of the constructor of {{InstanceSpecifier}} is implementation defined.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18442922 */
+                ScoreReq.CompReq InstanceSpecifierCopySemantics {
+                    description = '''The {{InstanceSpecifier}}
+                    class shall be copy-constructible as well as being copy-assignable.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.DataLoss@1]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/21355358 */
+                ScoreReq.CompReq InstanceSpecifierMoveSemantics {
+                    description = '''The {{InstanceSpecifier}}
+                    class shall be move-constructible as well as being move-assignable.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForProgrammingLanguageIdioms@1, Communication.SupportForMultipleProgrammingLanguages@1]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18443704 */
+                ScoreReq.CompReq InstanceSpecifierComparisonOperators {
+                    description = '''The {{InstanceSpecifier}} class shall provide a {{operator==}} function for the following:
+
+                    * {{InstanceSpecifier}}and {{InstanceSpecifier}}
+
+                    * {{InstanceSpecifier}}{{amp::string\_view}}
+                     and
+                    * {{amp::string\_view}}{{InstanceSpecifier}} and
+
+                    Return value: {{true}}{{short-name-path}}{{false}} if both the left and right sides are denoting exactly the same element via an identical AUTOSAR  Otherwise,  .
+
+                    The {{InstanceSpecifier}} class shall provide a {{operator!=}} function for the following:
+
+                    *  {{InstanceSpecifier}}and {{InstanceSpecifier}}
+
+                    *  {{InstanceSpecifier}}{{amp::string\_view}} and
+
+                    *  {{amp::string\_view}}{{InstanceSpecifier}} and
+
+                    Return value: the negation of the {{operator==}} function taking the left and right sides.
+
+                    The {{InstanceSpecifier}} class shall provide a {{operator<}} function for two {{InstanceSpecifier}}s.
+
+                    Return value: {{true}} if the underlying string of the first {{InstanceSpecifier}} is lexically smaller than underlying string of the second one. Otherwise,{{false}}.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/21777400 */
+                ScoreReq.CompReq InstanceSpecifierHashOperator {
+                    description = '''An overload for {{std::hash}} for {{InstanceSpecifier}} which allows hashing an {{InstanceSpecifier}} shall be provided. An {{InstanceSpecifier}} shall be able to be used as a key in STL containers such as {{std::map}}.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18444700 */
+                ScoreReq.CompReq InstanceSpecifierToString {
+                    description = '''The {{InstanceSpecifier}} class shall provide a public method:
+
+                    {{{amp::string\_view InstanceSpecifier::ToString() const noexcept;}}}
+
+                    Return value: a stringified form of {{InstanceSpecifier}}. {{amp::string\_view}}{{InstanceSpecifier}}The lifetime of the underlying string of the returned  is guaranteed for the lifetime of the '''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/21361782 */
+                ScoreReq.CompReq InstanceSpecifierCorrespondenceToServiceInstances {
+                    description = '''A valid {{InstanceSpecifier}} can correspond to 1..n service instances.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.ServiceInstance@1]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/31484351 */
+                ScoreReq.CompReq InstanceSpecifierMultiBinding {
+                    description = '''Each of the instances that an {{InstanceSpecifier}} corresponds to may be of a different binding. Multiple instances can also correspond to the same binding.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.MultiBindingSupport@1]
+                    version = 1
+                }
+            }
+
+            section "InstanceIdentifier" {
+
+                /* broken_link_c/issue/18448357 */
+                ScoreReq.CompReq InstanceIdentifierCreate {
+                    description = '''The {{InstanceIdentifier}} class shall provide a non-throwing constructor using the Named Constructor idiom (See progress-cursor Creation of an object using Named Constructor approach
+
+                    {{{static bmw::Result<InstanceIdentifier> InstanceIdentifier::Create(amp::string\_view serialized\_format) noexcept;}}}
+
+                    Arguments:
+
+                    * serialized\_format: The serialized form of an {{InstanceIdentifier}} that has been created using InstanceIdentifier ToString.
+
+                    Return value: returned {{bmw::Result}} which contains
+
+                    *  a {{bmw::Result::Error}} containing the value {{ComErrc::kInvalidInstanceIdentifierString}}. when the format of the {{serialized\_format}} is corrupted'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18448416 */
+                ScoreReq.CompReq InstanceIdentifierConstructor {
+                    description = '''The constructor of the class {{InstanceIdentifier}}
+                    shall be private.
+
+                    Note: Construction of an {{InstanceIdentifier}}instance by the user shall only be possible via the public static {{Create()}} method (See  InstanceIdentifier Create).
+
+                    Therefore the signature of the constructor of {{InstanceIdentifier}}is implementation defined. '''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18563675 */
+                ScoreReq.CompReq InstanceIdentifierCopySemantics {
+                    description = '''The {{InstanceIdentifier}}
+                    class shall be copy-constructible as well as being copy-assignable.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.DataLoss@1]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/21353341 */
+                ScoreReq.CompReq InstanceidentifierMoveSemantics {
+                    description = '''The {{InstanceIdentifier}}
+                    class shall be move-constructible as well as being move-assignable.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForProgrammingLanguageIdioms@1, Communication.SupportForMultipleProgrammingLanguages@1]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/17556907 */
+                ScoreReq.CompReq InstanceIdentifierComparisonOperators {
+                    description = '''The {{InstanceIdentifier}}
+                    {{operator==}}
+                     class shall provide a  function for the following:
+
+                    *  {{InstanceIdentifier}}and {{InstanceIdentifier}}
+
+                    *  {{InstanceIdentifier}}{{amp::string\_view}} and
+
+                    *  {{amp::string\_view}}{{InstanceIdentifier}} and
+
+                    Return value: {{true}}{{short-name-path}}{{false}} if both the left and right sides are denoting exactly the element via an identical AUTOSAR  Otherwise,  .
+
+                    The {{InstanceIdentifier}} class shall provide a {{operator!=}} function for the following:
+
+                    *  {{InstanceIdentifier}}and {{InstanceIdentifier}}
+
+                    *  InstanceIdentifier}}{{amp::string\_view}} and
+
+                    *  amp::string\_view}}{{InstanceIdentifier}} and
+
+                    Return value: the negation of the {{operator==}} function taking the left and right sides.
+
+                    The {{InstanceIdentifier}} class shall provide a {{operator<}} function for two {{InstanceIdentifier}}s.
+
+                    Return value: {{true}} if the underlying string of the first {{InstanceIdentifier}} is lexically smaller than underlying string of the second one. Otherwise,{{false}}.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/18448382 */
+                ScoreReq.CompReq InstanceIdentifierToString {
+                    description = '''The {{InstanceIdentifier}} class shall provide a public method:
+
+                    {{{amp::string\_view InstanceIdentifier::ToString() const noexpect;}}}
+
+                    Return value: a stringified form of {{InstanceIdentifier}}. The lifetime of the underlying string of the returned {{amp::string\_view}} is guaranteed for the lifetime of the {{InstanceIdentifier}}.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                    version = 1
+                }
+
+                /* broken_link_c/issue/21361788 */
+                ScoreReq.CompReq InstanceidentifierCorrespondencetoserviceinstances {
+                    description = '''A valid {{InstanceIdentifier}} can correspond to 1..n service instances. Each of the instances shall be of the same binding.'''
+                    safety = ScoreReq.Asil.B
+                    derived_from = [Communication.ServiceInstance@1]
+                    version = 1
+                }
+
+            /* broken_link_c/issue/21784908 */
+            ScoreReq.CompReq InstanceIdentifierContainer {
+                description = '''{{mw::com}} shall provide a class {{InstanceIdentifierContainer}} in namespace {{bmw::mw::com}}, which acts as a container for instances of InstanceIdentifier Class
+
+                {{InstanceIdentifierContainer}} must adhere to the named requirements of a sequence container requirements according to [C++ named requirements: SequenceContainer|https://en.cppreference.com/w/cpp/named\_req/SequenceContainer]
+                A {{std::vector}} for example fulfills these requirements.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21789762 */
+            ScoreReq.CompReq FindServiceHandle {
+                description = '''{{mw::com}} shall provide a type {{FindServiceHandle}} in the namespace {{bmw::mw::com}}.
+
+                A {{FindServiceHandle}} shall be able to identify unambigously a started search for available service instances via:
+
+                * xxx or GenericProxy StartFindService with InstanceSpecifier,
+
+                , so that the started search can be stopped again via:
+
+                * xxx or yyy.
+
+                {{FindServiceHandle}} shall satisfy the `EqualityComparable <https://en.cppreference.com/w/cpp/named\_req/EqualityComparable>`\_  named requirement of C++.
+
+                {{FindServiceHandle}} shall satisfy the `LessThanComparable <https://en.cppreference.com/w/cpp/named\_req/LessThanComparable>`\_  named requirement of C++.
+
+                {{FindServiceHandle}} shall satisfy the `CopyAssignable <https://en.cppreference.com/w/cpp/named\_req/CopyAssignable>`\_  named requirement of C++.
+
+                to allow storing and managing FindServiceHandles in C++ container classes by the using application.
+
+                These requirements are fulfilled if the following operators are provided: operator==, operator<, and operator=.
+
+                The exact definition of {{FindServiceHandle}} is {{mw::com}} implementation specific.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.ServiceDiscovery@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21791066 */
+            ScoreReq.CompReq FindServiceHandler {
+                description = '''{{mw::com}} shall provide the definition of {{FindServiceHandler}} in namespace {{bmw::mw::com}} as a function wrapper for the user provided handler function that gets called by the {{mw::com}} implementation in case the currently available service instances for a given asynchronous search has changed. The user must provide the function implementation which is not required to be re-entrant for a given registration.
+
+                I.e. the mw::com implementation assures call serialization to an FindServiceHandler instance for a given started asynchronous search identified by a FindServiceHandle.
+
+                The signature of a {{FindServiceHandler}} is:
+
+                {{void(bmw::mw::com::ServiceHandleContainer, bmw::mw::com::FindServiceHandle)>;}}
+
+                Arguments:
+
+                * {{ServiceHandleContainer}}: container of HandleType, representing the currently available service instances matching the given search.
+
+                * {{FindServiceHandle}}: The FindServiceHandle representing the search, where the availability of service instances has changed.
+
+                The type chosen for {{FindServiceHandler}} by the {{mw::com}} provider shall allow construction from any callable, with the given signature.'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+            }
+            }
+
+            ScoreReq.CompReq EventInfo {
+                description = '''{{mw::com}} shall provide a struct {{EventInfo}} in namespace {{score::mw::com}} which contains the following members:
+
+                * {{std::string name}}: the event's name
+                * {{score::memory::DataTypeSizeInfo}} data_type_meta_info: the size and alignment information of the event/field data type.'''
+
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+            }
+
+            ScoreReq.CompReq GenericSkeletonServiceElementInfo {
+                description = '''{{mw::com}} shall provide a struct {{GenericSkeletonServiceElementInfo}} in namespace {{score::mw::com}} which contains the following members:
+
+                * {{{score::cpp::span<const EventInfo>}}} events: holding the event information of a {{GenericSkeleton}}.'''
+
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+                version = 1
+
+            }
+
+        }
+
+        section "Runtime" {
+
+            /* broken_link_c/issue/21781439 */
+            ScoreReq.CompReq RuntimeResolveInstanceIDs {
+                description = '''A function:
+
+                {{bmw::Result<InstanceIdentifierContainer> ResolveInstanceIDs(mw::com::InstanceSpecifier instance\_specifier)}}
+
+                shall exist in the namespace {{bmw::mw::com::runtime}}.
+
+                Arguments:
+
+                {{instance\_specifier}}: an instance specifier denoting a service instance from the model.
+
+                Return value: returned {{bmw::Result}} which contains
+
+                * a {{bmw::Result::Error}} containing the value {{ComErrc::kInstanceIDCouldNotBeResolved}}, when the instance\_specifier could not be resolved in the configuration.
+
+                * or, a {{bmw::Result::Value}} containing an {{InstanceIdentifierContainer}} with all the {{InstanceIdentifier}}s configured for the given {{instance\_specifier}}.
+
+                Thread-safety: {{ResolveInstanceIDs}} shall be thread-safe (opposed to the general requirement Thread-safety of methods/functions of Public API)'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.DeploymentConfigurationAtRuntime@1]
+                version = 1
+            }
+        }
+    }
+
+    section "Referenced_Requirements" {
+
+        /* broken_link_c/issue/17435062 */
+        ScoreReq.CompReq CreationOfAnObjectUsingNamedConstructorApproach {
+            description = '''A class, {{MyClass}}, shall provide a static member function {{Create()}} returning the constructed object embedded in a {{bmw::Result}}. This function first performs all operations for constructing an object of {{MyClass}}, which may fail or result in an error. E.g. parameter checks or resource allocation may fail.
+
+            If an error occurs during these operations, the error is returned as an {{bmw::result::ErrorCode}} in the {{bmw::Result}}. If no error occurs, the created object is returned as a value in the {{bmw::Result}}. The value object can then be considered as valid. The function shall not throw an exception.
+
+            {{{static bmw::Result<MyClass::Create(/ construction arguments /) noexcept;}}}'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ErrorHandling@1, Communication.SupportForProgrammingLanguageIdioms@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21292772 */
+        ScoreReq.CompReq ReEntrancyAndThreadSafety {
+            description = '''A class, {{MyClass}}, {{MyClass}}shall be re-entrant and thread-safe for different  class instances. When called re-entrant or concurrently on the same {{MyClass}} instance, the behavior is undefined.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21270100 */
+        ScoreReq.CompReq ReturnValueOfSubscribe {
+            description = '''If {{Subscribe()}} has already been called on the event (and hasn't been withdrawn with a call to {{Unsubscribe()}}), when {{Subscribe()}} is called, and the provided {{max\_sample\_count}} value is:
+
+            *  the same as for the current subscription, then {{Subscribe()}} shall return silently without any action.
+
+            *  {{Subscribe()}}different from the value for the current subscription, then  shall return {{bmw::result::ErrorCode}} containing the value {{ComErrc::kMaxSampleCountNotRealizable}} .a '''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21269964 */
+        ScoreReq.CompReq BehaviourOfSubscribe {
+            description = '''Subscribe will begin the synchronous subscription process according to progress-cursor SubscriptionState. The subscription process can be rejected by the provider side if:
+
+            *  the provider doesn't have sufficient resources to satisfy the {{max\_sample\_count}} requested according to Oversubscription of an Event only possible if configured.
+
+            *  if the total number of allowable subscribers is exceeded.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21286218 */
+        ScoreReq.CompReq BehaviourOfUnsubscribe {
+            description = '''If the subscription process hasn't already started (i.e. {{Subscribe()}} hasn't been called before), {{Unsubscribe()}} shall return silently without any action.
+
+            Otherwise it shall do an unsubscription of the event at the providing side.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21293087 */
+        ScoreReq.CompReq BehaviourOfSetReceiveHandler {
+            description = '''The {{EventReceiveHandler}} that is passed to {{SetReceiveHandler}} shall be called every time data is received by the class instance on which {{SetReceiveHandler}} is called.
+
+            {{SetReceiveHandler}} shall adhere to the re-entrancy and thread-safety specifications described in Re-entrancy and Thread-safety.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.EventType@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21293524 */
+        ScoreReq.CompReq BehaviourOfUnsetReceiveHandler {
+            description = '''{{UnsetReceiveHandler}} will unregister the {{EventReceiveHandler}} that was registered by the class instance with a call to {{SetReceiveHandler}}. After calling {{UnsetReceiveHandler}}, the {{EventReceiveHandler}} will no longer be triggered when the class instance receives new data.
+
+            {{UnsetReceiveHandler}} shall fulfill the following requirement: Explicit Lifetime ending by API calls
+
+            {{UnsetReceiveHandler}} shall adhere to the re-entrancy and thread-safety specifications described in Re-entrancy and Thread-safety.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.EventType@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21293991 */
+        ScoreReq.CompReq ReturnValueOfGetFreeSampleCount {
+            description = '''The returned {{size\_t}}
+             returned from {{GetFreeSampleCount}} indicates the number of free/unused slots for data samples in the local cache.
+
+            {{GetFreeSampleCount}} .shall adhere to the re-entrancy and thread-safety specifications described in default-cursor Re-entrancy and Thread-safety'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21294278 */
+        ScoreReq.CompReq BehaviourOfGetNumNewSamplesAvailable {
+            description = '''{{GetNumNewSamplesAvailable}} queries the number of new data samples that are available since the last time {{GetNewSamples}} was called on the class instance that {{GetNumNewSamplesAvailable}} was called on.
+
+            {{GetNumNewSamplesAvailable}} .shall adhere to the re-entrancy and thread-safety specifications described in Re-entrancy and Thread-safety'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/14035773 */
+        ScoreReq.CompReq BehaviourOfGetNewSamples {
+            description = '''{{GetNewSamples}} updates the local event cache with new data samples that are available {{GetNewSamples}}since the last call to on the same class instance.
+
+            In the context of the {{GetNewSamples}} call, the following steps shall be done repeatedly:
+
+            * get next received event data sample from underlying receive buffers in FIFO semantics. I.e. first received sample is first to be taken.
+
+            *  de-serialize the data, if needed.
+
+            * place the data sample of type {{SampleType}}in the local cache.
+
+            * call user provided callback {{f}} with a {{SamplePtr}} referencing the data sample located in local cache (See SamplePtr).
+
+            until at least one of the following conditions is true:
+
+            * {{max\_num\_samples}} have already been fetched from the underlying receive buffers within this {{GetNewSamples}} call.
+
+            * {{max\_num\_samples}} reached. I.e. the application is currently holding exactly as many {{SamplePtr}}s provided by this Event class instance, as it has committed in call to {{Subscribe}} via {{max\_sample\_count}}.
+
+            * no new data samples available from underlying receive buffers.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/22128594 */
+        ScoreReq.CompReq BehaviourOfOfferService {
+            description = '''When {{OfferService}} has returned, the service instance shall be visible to potential consumers such that they are able to find it via a call to {{FindService}} or {{StartFindService}} on any {{Proxy}} or {{GenericProxy}}.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ServiceDiscovery@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/22121224 */
+        ScoreReq.CompReq BehaviourOfStopOfferService {
+            description = '''When {{StopOffer}} has returned, any call to {{FindService}}{{StartFindService}}{{Proxy}}{{GenericProxy}} won't find / return this instance. or  on any  or
+
+            Existing proxies of this service instance:
+
+            *  will see a SubscriptionState change for any {{Event}} / {{Field}}, which were previously in state {{kSubscribed}}.
+
+            *  which are currently processing a service method call will return a failure in the method call.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ServiceDiscovery@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21350367 */
+        ScoreReq.CompReq ReturnValueOfSuccessfulGetNewSamples {
+            description = '''On success, {{GetNewSamples}} will return the {{receiver}}{{GetNewSamples}}number of data samples that were passed to the  function (that was passed to {{GetNewSamples}}) in the context of the  call.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/14086929 */
+        ScoreReq.CompReq GetNewSamplesReceiverSignature {
+            description = '''The user provided Callable {{receiver}} in calls to {{GetNewSamples}} has to comply with the following signature:
+
+            {{{void(mw::com::SamplePtr<SampleType>)}}}'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21803116 */
+        ScoreReq.CompReq CalculationOfFreeSampleCount {
+            description = '''
+            * After call to {{Subscribe}} (ProxyEvent Subscribe or GenericProxyEvent Subscribe) with parameter {{maxSampleCount}} set to N and before any call to {{GetNewSamples}} on the same Event class instance, a call to {{GetFreeSampleCount}} shall return N.
+
+            * Each SamplePtr created by the {{mw::com}} implementation in the context of a call to {{GetNewSamples}} on the same Event class instance. shall lead to a decrement of count of free samples.
+
+            * Each destruction or {{nullptr\_t}} assignment of a SamplePtr instance created from this Event class instance shall lead to a increment of count of free samples.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21361285 */
+        ScoreReq.CompReq shortnamePath {
+            description = '''An shortname is a string which follows the following rules:
+
+            * The first character of a shortname must be one of the following:
+
+              *  uppercase Latin letters A-Z
+
+              *  lowercase Latin letters a-z
+
+              *  underscore
+
+            * Any other character of a must be one of the following:
+            shortname
+              *  digits 0-9
+
+              *  uppercase Latin letters A-Z
+
+              *  lowercase Latin letters a-z
+
+              *  underscore
+
+            *  A shortname path is a sequence of shortnames delimited by {{/}}.
+
+            Note. The concept and definition of a shortname path is based on AUTOSAR shortname paths and the naming convention is .derived from the rule for C++ Identifiers'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/18804932 */
+        ScoreReq.CompReq BehaviourOfFindService {
+            description = '''{{FindService}} will return handles for all available service instances corresponding to  / the InstanceSpecifier ClassInstanceIdentifier Class from which a fully working Proxy Class or GenericProxy Class can be constructed. A service instance is available if:
+
+            * Skeleton OfferService has been called on the provider side
+
+            * and not yet been withdrawn with Skeleton StopOfferService
+
+            The correspondence between service instances and an:
+
+            * {{InstanceSpecifier}}   is described in InstanceSpecifier Correspondence to Service Instances .
+
+            * InstanceIdentifier}} is described in InstanceIdentifier Correspondence to Service Instances'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ServiceDiscovery@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21788845 */
+        ScoreReq.CompReq BehaviourOfStartFindService {
+            description = '''{{StartFindService}} service instances corresponding to the will start an asynchronous search for all available InstanceSpecifier/InstanceIdentifier from which a fully working Proxy Class or GenericProxy Class can be constructed. A service instance is available if:
+
+            *  Skeleton OfferService has been called on the provider side
+
+            *  and not yet been withdrawn with Skeleton StopOfferService
+
+            The correspondence between service instances and an:
+
+            * {{InstanceSpecifier}}   is described in InstanceSpecifier Correspondence to Service Instances .
+
+            * InstanceIdentifier}} is described in InstanceIdentifier Correspondence to Service Instances
+
+            Whenever the availability of available service instances changes (i.e. new instances showing up, previous instances offering stopped), the given {{FindServiceHandler}} gets called with the current list of available service instances, until {{StopFindService}} (See Proxy StopFindService / GenericProxy StopFindService) has been called with the returned {{FindServiceHandle}}.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ServiceDiscovery@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21466369 */
+        ScoreReq.CompReq BehaviourOfSetSubscriptionStateChangeHandler {
+            description = '''The {{SubscriptionStateChangeHandler}} (See SubscriptionStateChangeHandler)
+            that is passed to {{SetSubscriptionStateChangeHandler}} shall be called every time the {{SubscriptionState}} (See SubscriptionState) changes according to the requirements:
+
+            *  Calls to SubscriptionStateChangeHandler with kSubscriptionPending
+
+            *  Calls to SubscriptionStateChangeHandler with kSubscribed
+
+            *  Calls to SubscriptionStateChangeHandler with kNotSubscribed'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/18805834 */
+        ScoreReq.CompReq CallsToSubscriptionStateChangeHandlerWithKNotSubscribed {
+            description = '''{{mw::com}} shall call a registered {{SubscriptionStateChangeHandler}} for an event or field instance, with the value {{kNotSubscribed}} in the following cases:
+
+            * the client unsubscribes to an event or field and the unsubscription is established successfully
+
+            * the client had issued a subscription to an event or field and the related SubscriptionState was already in state {{kSubscriptionPending}} or {{kSubscribed}}, but then the provider side decided to refuse/abort/withdraw the subscription for at least the remaining lifetime of the providing side service instance.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/18805769 */
+        ScoreReq.CompReq CallsToSubscriptionStateChangeHandlerWithkSubscriptionPending {
+            description = '''{{mw::com}} shall call a registered {{SubscriptionStateChangeHandler}} for an event or field instance, with the value {{kSubscriptionPending}} in the following cases:
+
+            * the client subscribes to an event or field and the actual subscription does not happen immediately (e.g. due to a bus protocol)
+
+            * the client is subscribed to an event or field and {{mw::com}} implementation has detected, that the server instance is currently not available (due to restart, network problem or other reasons)'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/18805778 */
+        ScoreReq.CompReq SubscriptionStateChangeHandlerWithKSubscribed {
+            description = '''{{mw::com}} shall call a registered {{SubscriptionStateChangeHandler}} for an event or field instance, with the value {{kSubscribed}} in the following cases:
+
+            * the client subscribes to an event or field and the actual subscription is established successfully
+
+            * the client is subscribed to an event or field and the actual subscription is re-established again after being temporarily unavailable (due to restart, network problem or other reasons)'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        ScoreReq.CompReq SubscriptionStateChangeHandlerReturnValue {
+            description = '''In case the user provided handler returns true, the {{SubscriptionStateChangeHandler}} will be kept registered and will be called on the next {{SubscriptionState}} change again.
+            In case the user provided handler returns false, the {{SubscriptionStateChangeHandler}} will be unregistered and won't be called on the next {{SubscriptionState}} change again.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21466236 */
+        ScoreReq.CompReq BehaviourOfUnsetSubscriptionStateChangeHandler {
+            description = '''{{UnsetSubscriptionStateChangeHandler}} will unregister the {{SubscriptionStateChangeHandler}} (See SubscriptionStateChangeHandler) that was registered by the class instance with a call to {{SetSubscriptionStateChangeHandler}} After calling  the  will no longer be triggered when the {{SubscriptionState}} (See progress-cursor SubscriptionState changes.
+
+            {{UnsetSubscriptionStateChangeHandler}} shall fulfill the following requirement: Explicit Lifetime ending by API calls.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ProducerConsumerPattern@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21470600 */
+        ScoreReq.CompReq BehaviourOfAllocate {
+            description = '''The {{Allocate}} method of the specific class allows the binding to allocate memory and provide a {{SampleAllocateePtr}} (See SampleAllocateePtr) which can be filled by the user.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21553375 */
+        ScoreReq.CompReq BehaviourOfUpdateSendWithCopy {
+            description = '''{{mw::com}} creates a copy of input parameter and shares it with all subscribed applications.
+
+            Note. In certain cases, the error handling of {{Update}} may be deferred according to Deferring Initial Value Update Error Handling to OfferService
+            '''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.EventType@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21553623 */
+        ScoreReq.CompReq BehaviourOfZeroCopyUpdateSend {
+            description = '''Before updating/sending a field or event, a slot in memory must be requested with SkeletonField class Allocate
+             resp. SkeletonEvent class Allocate and filled with the respective data. The data will then be shared with all subscribed applications.
+
+            Note. In certain cases, the error handling of {{Update}} may be deferred according to Deferring Initial Value Update Error Handling to OfferService.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ZeroCopy@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/22129134 */
+        ScoreReq.CompReq BehaviourOfSettingFieldInitialValue {
+            description = '''If SkeletonField class Update or SkeletonField class Zero-copy Update are called multiple times before Skeleton OfferService, then the value from the latest {{Update}} call will be used to set the initial value of the field.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21553554 */
+        ScoreReq.CompReq DeferringInitialValueUpdateErrorHandlingToOfferService {
+            description = '''Depending on the binding implementation, when SkeletonField class Update or SkeletonField class Zero-copy Update
+
+            is is called before Skeleton OfferService
+            {{Skeleton}}
+            {{SkeletonField}}
+            {{Update}}
+            {{OfferService}}
+             is called on the  containing the  the handling of an error from the  call, and subsequently the returning of the error code, may be deferred to the  call.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ErrorHandling@1]
+            version = 1
+        }
+    }
+
+    section "Functionality" {
+
+        /* broken_link_c/issue/8742625 */
+        ScoreReq.CompReq CheckTheUidOfTheProducer {
+            description = '''A consumer consuming a provided service instance in the role of a proxy shall verify, whether the UID of the service instance provider matches its configured expectation. If the UID of the provider does not match the expectation, the consumer shall reject the communication with this provided service instance.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5898654 */
+        ScoreReq.CompReq OperateLoLaInParallelToAdaptiveAutosar {
+            description = '''It shall be possible to compile / link / operate LoLa in parallel to an adaptive AUTOSAR Stack.
+
+            Note:
+
+            This includes that one process (one adaptive Application) shall be able to use ara::com and LoLa in parallel.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@2]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5898898 */
+        ScoreReq.CompReq UseBmwSpecificNamespace {
+            description = '''LoLa shall not operate in the {{﻿ara}} C++ namespace. Any {{ara}} specific namespace descriptions in adaptive AUTOSAR Communication Management shall by customized to a BMW specific one.
+
+            Note:
+
+            In order to operate LoLa in parallel to any adaptive AUTOSAR Stack, we need to ensure, that there are no type clashes and therefore we use a distinct/separate namespace.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5898932 */
+        ScoreReq.CompReq UserDataShallBeExchangedViaSharedMemory {
+            description = '''Data that is send by a user, via a skeleton, shall only be transmitted via Shared Memory.
+
+            Note:
+            Only this way we can ensure zero-copy capabilities.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5898962 */
+        ScoreReq.CompReq NotificationsShallBeExchangedViaMessagePassing {
+            description = '''Any high-level notifications (e.g. subscription, event ready) shall be exchanged via Message Passing.
+
+            Note:
+
+            This way no blocking communication needs to be implemented via Shared Memory. Easing FFI argumentation.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899052 */
+        ScoreReq.CompReq UserDataShallBeProvidedInASeparateReadOnlySharedMemorySegment {
+            description = '''User data (see User data shall be exchanged via Shared Memory) shall be provided in a separate read-only shared memory segment.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899059 */
+        ScoreReq.CompReq OneSharedMemorySegmentPerASILLevelForControlData {
+            description = '''For each communication channel a different shared memory segment shall be used per ASIL.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899076 */
+        ScoreReq.CompReq TheSharedMemorySegmentsShallBeDividedIntoSlots {
+            description = '''The shared memory segments (defined in User data shall be provided in a separate read-only shared memory segment and One shared memory segment per ASIL level for control data) shall be divided into slots.
+
+            A specific slot N in a data segment shall refer to a specific slot N in a control segment.
+
+            Note:
+            It might be necessary to add some further meta information of the shared memory segment  into it. So this does not indicate that the whole shared memory segment is split only into slots.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899090 */
+        ScoreReq.CompReq TheNumberOfSlotsShallBeConfigurable {
+            description = '''The number of available slots (defined here: The shared memory segments shall be divided into slots) shall be configurable.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899126 */
+        ScoreReq.CompReq CalculateNecessarySharedMemorySizePriorToCreatingIt {
+            description = '''A skeleton process shall calculate the necessary shared memory size for the control and data segments, prior to creating it.
+
+            Note:
+            A maximum limit of elements needs to be given and a data structure must not reallocate during sample assembly. Otherwise we might run out of memory due to fragmentation, even with more advanced allocation schemes.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899136 */
+        ScoreReq.CompReq LolaSharedMemorySegmentsUsedByMwComShallStartWithPrefixLola {
+            description = '''Shared Memory segments used by mw::com (aka LoLa) shall start with prefix `lola`'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899143 */
+        ScoreReq.CompReq FilesThatAreUsedForSharedMemoryIpcShallNotBePersistent {
+            description = '''Shared Memory segments that are used for IPC communication in the sense of LoLa shall not be persistent. This means that producers that create shared memory segments shall remove them on destruction.
+
+            Underlying files shall only be finally removed from the file-system once no consumer access them anymore.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899159 */
+        ScoreReq.CompReq SharedMemorySegmentsShallBeIdentifiedViaACommonKnownName {
+            description = '''A consumer (proxy) and a producer (skeleton) shall identify a to-be-used shared memory segment via a common known name.
+
+            Note:
+
+            This name might be subject to calculation by deployment variables. e.g. a service id or instance id'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899160 */
+        ScoreReq.CompReq ThereShallBeOneTripletOfSharedMemorySegmentsPerServiceInstance {
+            description = '''The shared memory segments described in The shared memory segments shall be divided into slots and One shared memory segment per ASIL level for control data shall exist per service instance.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899175 */
+        ScoreReq.CompReq SharedMemorySegmentsShallNotBeMappedToAFixedVirtualAddress {
+            description = '''Shared Memory segments shall not be mapped to a fixed virtual address.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899178 */
+        ScoreReq.CompReq OnlyOffsetPointerWithinSharedMemorySegments {
+            description = '''There shall be no usage of any other pointer type then offset pointer (aka fancy pointer, aka relative pointer) within a shared memory segment.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899184 */
+        ScoreReq.CompReq OnlyConfiguredUidsShallHaveAccessToTheLoLaSharedMemorySegments {
+            description = '''It shall be configurable which user ids have access to data and control shared memory segments.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899238 */
+        ScoreReq.CompReq PerformActiveBoundCheckingOnDereferencingOfOffsetPointer {
+            description = '''Any dereferenciation of an offset pointer shall be subject to active bound checking.
+
+            Active bound checking referes to an active check, that the calculated target pointer is within the bounds of the mapped shared memory segment.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899241 */
+        ScoreReq.CompReq SychronizingSharedMemoryRegionsShallEnsureWaitFreedom {
+            description = '''The synchronization between data and control segments shall ensure wait-freedom.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899244 */
+        ScoreReq.CompReq SubscriptionHandlingShallBeImplementedViaMessagePassing {
+            description = '''Subscription handling shall be implemented via Message Passing'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899250 */
+        ScoreReq.CompReq EventNotificationsShallBeImplementedViaMessagePassing {
+            description = '''Event Notifications shall be implemented via Message Passing'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899262 */
+        ScoreReq.CompReq OneMessagePassingReceivePortPerASILLevelPerProcess {
+            description = '''There shall exist one message passing receive port for LoLa communication per ASIL per process'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899265 */
+        ScoreReq.CompReq EachMessagePassingPortShallUseACustomThread {
+            description = '''Each message passing port (see One message passing receive port per ASIL-Level per process) shall use a custom thread.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899276 */
+        ScoreReq.CompReq RegisterACallbackForAllExchangeMessages {
+            description = '''It shall be possible for all notifications (exchanged via message passing) to register a callback.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899282 */
+        ScoreReq.CompReq RegisteredCallbacksForMessagesShallBeInvokedOfTheRespectiveWaitingThread {
+            description = '''A user shall be able to register callbacks that are invoked on the reception of messages. These callbacks shall be invoked in the respective waiting thread.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899287 */
+        ScoreReq.CompReq AControlSlotShallContainAllNecessaryDataInformationForSynchronizingDataAccess {
+            description = '''A control slot shall contain all necessary data information for synchronizing data access'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899292 */
+        ScoreReq.CompReq AProducerShallAlwaysBeAbleToStoreNewData {
+            description = '''A producer shall always be able to store new data'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/5899299 */
+        ScoreReq.CompReq OnContractViolationQmCommunicationForTheAffectedServiceInstanceShallBeWithdrawn {
+            description = '''On contract violation, QM communication for the affected service instance shall be withdrawn'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/6093144 */
+        ScoreReq.CompReq StopOfferingServiceDuringServiceObjectDestruction {
+            description = '''If, during destruction of an object that acts as a middleware service, the service is still in an offered state, the service offering shall be stopped.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ServiceDiscovery@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/7088394 */
+        ScoreReq.CompReq OversubscriptionOfAnEventOnlyPossibleIfConfigured {
+            description = '''Per default LoLa (mw::com) shall supervise the "maxSampleCount" arguments of all consumer side Subscribe() calls for a specific event instance.
+
+            The sum of all "maxSampleCount" argument values of all currently active subscription must not be larger than the configured number of sample slots of the specific event instance - 1.
+
+            If a new Subscribe() call would violate this rule, this subscription shall be rejected.
+
+            This supervision shall be skipped, in case the configuration of the specific event instance explicitly allows an oversubscription.
+
+            Note:
+
+            Within the LoLa configuration it is configured/defined, what is the maximum number of (pre-allocated) sample slots per event instance.
+
+            The generic calculation-rule for defining this number is:
+
+            1 + Sum of "maxSampleCount" arguments of all consumer side Subscribe() calls, which are active during runtime.
+
+            This rule is designed in a way to assure, that all consumers can hold up to their used "maxSampleCount" in subscription for an arbitrary timespan in parallel!'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/20003388 */
+        ScoreReq.CompReq ErrorCodesRelatingToActiveSubscription {
+            description = '''An {{Unsubscribe()}}When an API returning an error code is only supported  during an "Active Subscription", then the {{bmw::result::ErrorCode}} with value {{kNotSubscribed}} can be returned:Active Subscription" is the period of time in between a successful subscription and a call to
+
+            *  when the API is called outside of an "Active Subscription"
+
+            *  or, when the API is called inside an "Active Subscription" but the current subscription state is {{kSubscriptionPending}}, e.g. if the provider has gone down, and the binding is not able to support the API call in this state.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ErrorHandling@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/20002443 */
+        ScoreReq.CompReq ReturnCodeForBindingFailures {
+            description = '''Any signature in the public API that has the possiblity of returning an error code (e.g. bmw::Result, bmw::Result<void>) is allowed to return{{bmw::result::ErrorCode}}{{mw::com::ComErrorDomain}} and the value is set to {{kBindingFailure}}, when any failure occurs in the binding. a  where the error domain is set to '''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.ErrorHandling@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21802628 */
+        ScoreReq.CompReq ThreadSafetyOfMethodsFunctionsOfPublicAPI {
+            description = '''Generally all methods/functions of the public API of {{mw::com}} shall be thread-safe in case they are called on different instances.
+
+            Generally all methods/functions of the public API of {{mw::com}} are not thread-safe in case they are called on the same instance.
+
+            Exceptions to these rules shall be given individually per method/function.
+
+            {{static}} (class level) methods/functions are generally not thread-safe (for the same class) unless specified otherwise.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/20236346 */
+        ScoreReq.CompReq ExplicitLifetimeEndingByAPICalls {
+            description = '''For a callable, which has been registered by a specific static/class-level or non-static/instance-level {{registration API}}, where there also exists a corresponding {{un-registration API}}, the {{mw::com}} implementation shall assure, that there is neither an ongoing call nor a future call to the callable after the call to the {{un-registration API}} has returned.
+
+            Note 1: This could mean, that the call to the {{un-registration API}} may block for some time or - in worst case - forever in case a user provided callback itself blocks/runs forever.
+
+            Note 2: Generally an {{un-registration API}} in {{mw::com}} is a void function, since it is unexpected, that un-registering can fail. If for some reason un-registering fails, it will be rated as a severe internal error leading to a {{std::terminate()}} call.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/20236391 */
+        ScoreReq.CompReq ImplicitLifetimeEndingByDestructionOfContext {
+            description = '''If there exists a requirement for a {{mw::com}} provided class, which supports a non-static/instance-level {{registration API}} for user provided callables, that the {{un-register API}} shall be called implicitly during destruction of an instance of the class, then
+
+            the {{mw::com}} implementation shall assure, that there is neither an ongoing call nor a future call to the callable after the {{destructor}} of this instance has returned.
+
+            Note: This could mean, that the call to the {{destructor}} may block for some time or - in worst case - forever in case a user provided callback itself blocks/runs forever.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SafeCommunication@1]
+            version = 1
+        }
+
+        /* broken_link_c/issue/21838255 */
+        ScoreReq.CompReq SampleAvailabilityAfterEventReceivedHandlerCalled {
+            description = '''{{mw::com}} shall assure, that the next call to {{GetNewSamples}} (ProxyEvent GetNewSamples or GenericProxyEvent GetNewSamples or ProxyField GetNewSamples) – after an Event Receive Handler has been called for a given event or field instance – will lead to at least one call to callback F with a new sample.'''
+            safety = ScoreReq.Asil.B
+            derived_from = [Communication.SupportForTimeBasedArchitecture@1]
+            version = 1
+        }
+    }
+
+    section "Functional_Specification" {
+
+        section "Multi_Target_Build" {
+
+            /* broken_link_c/issue/5898925 */
+            ScoreReq.CompReq EnableMultiTargetBuild {
+                description = '''LoLa shall be enabled for the so-called "Multi-Target-Build".
+
+                Note:
+
+                "Multi-Target-Build" references the possibility to alter deployment information without the need to re-compile design specifics.
+
+                The respective adaptive AUTOSAR Requirements an be found here: Multi-Target-Build'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.DeploymentConfigurationAtRuntime@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21803701 */
+            ScoreReq.CompReq ChangeOfServiceInterfaceDeployment {
+                description = '''A change of the service interface deployment shall be possible without re-compiling the involved adaptive applications. – This means that the following changes in the service interface deployment shall be possible without the need for a re-compilation of the adaptive
+
+                applications:
+
+                * changes to the concrete type of ServiceInterfaceDeployment and the composed ServiceMethodDeployment, ServiceFieldDeployment, and ServiceEventDeployment
+                 (e.g., changing a SomeipServiceInterfaceDeployment to a UserDefinedServiceInterfaceDeployment)
+
+                * changes to one or more attributes of meta classes derived from ServiceInterfaceDeployment, ServiceMethodDeployment, ServiceFieldDeployment, and
+                 ServiceEventDeployment (e.g., changing the value of SomeipEventDeployment.separationTime)'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.DeploymentConfigurationAtRuntime@1]
+                version = 1
+            }
+
+            /* broken_link_c/issue/21803702 */
+            ScoreReq.CompReq ChangeOfServiceInstanceDeployment {
+                description = '''A change of the service instance deployment shall be possible without re-compiling the involved adaptive applications. – This means that the following changes in the service instance deployment shall be possible without the need for a re-compilation of the adaptive
+
+                applications:
+
+                * changes to the concrete type of ProvidedApServiceInstance and/or RequiredApServiceInstance (e.g., changing a ProvidedSomeipServiceInstance to a ProvidedUserDefinedServiceInstance and a RequiredSomeipServiceInstance to a RequiredUserDefinedServiceInstance)
+
+                * changes to one or more attributes of meta class derived from ProvidedApServiceInstance and/or RequiredApServiceInstance (e.g., changing the value of the SomeipProvidedEventGroup.multicastThreshold
+                 or the SomeipSdServerServiceInstanceConfig.serviceOfferTimeToLive).'''
+                safety = ScoreReq.Asil.B
+                derived_from = [Communication.DeploymentConfigurationAtRuntime@1]
+                version = 1
+            }
+        }
+    }
+}
