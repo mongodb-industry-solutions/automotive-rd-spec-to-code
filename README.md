@@ -178,9 +178,7 @@ The agent ingests the unhardened `timed_command_queue.h` and generates productio
 
 ---
 
-## Interactive Documentation & Visualizations
+## Architecture & Design Documentation
 
-The `docs/` folder contains interactive browser tools built for technical presentations and architectural reviews:
-* [**`docs/automotive_rag_presentation.html`**](docs/automotive_rag_presentation.html): Google Light-themed 6-slide interactive presentation deck.
-* [**`docs/architecture_diagram.html`**](docs/architecture_diagram.html): Interactive 5-tier architecture explorer.
-* [**`docs/trace_visualization.html`**](docs/trace_visualization.html): Timeline view of tool invocations and token usage.
+For an architectural breakdown and sequence flow of the multi-tier agent system, refer to [**`docs/architecture.md`**](docs/architecture.md).
+
