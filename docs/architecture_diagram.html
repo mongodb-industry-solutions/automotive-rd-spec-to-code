@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automotive Agentic RAG Architecture</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-4">
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- Header Card -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+              High-Level System Architecture
+            </span>
+            <span class="text-xs text-[var(--muted-foreground)]">Horizon SDV &amp; Eclipse S-CORE Platform</span>
+          </div>
+          <h1 class="text-2xl font-bold mt-1 text-[var(--foreground)]">Automotive Agentic RAG with MongoDB Atlas</h1>
+          <p class="text-sm text-[var(--muted-foreground)]">
+            Autonomous Spec-to-Code Pipeline powered by Google Antigravity (AGY) SDK &amp; Gemini 3.8 Flash
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs px-3 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)]">
+            Protocol: <strong class="text-[var(--foreground)]">Model Context Protocol (MCP)</strong>
+          </span>
+          <span class="text-xs px-3 py-1.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--muted-foreground)]">
+            Vector DB: <strong class="text-[var(--foreground)]">MongoDB Atlas ($vectorSearch)</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Visual Layout (Stacked Interactive Tiers) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Layer Cards (8 cols) -->
+      <div class="lg:col-span-8 space-y-4">
+
+        <!-- Tier 1: Client & SDLC Layer -->
+        <div onclick="selectLayer('client')" id="card-client" class="layer-card cursor-pointer p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-blue-500/50 transition-all shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
+                L1
+              </div>
+              <div>
+                <h3 class="font-semibold text-base text-[var(--foreground)]">1. Client &amp; SDLC Integration Layer</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">Horizon SDV CI/CD, Eclipse S-CORE Repo, Engineer Triggers</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]">Input: C++ Code &amp; Goals</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Target Codebase</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">Eclipse S-CORE timed_command_queue.h / .cpp</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Safety Objectives</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">ISO 26262 ASIL-B Fault Mitigation &amp; ASPICE V-Model</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 2: Agent Runtime Layer -->
+        <div onclick="selectLayer('agent')" id="card-agent" class="layer-card cursor-pointer p-5 rounded-2xl bg-[var(--card)] border border-indigo-500/40 hover:border-indigo-500 transition-all shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
+                L2
+              </div>
+              <div>
+                <h3 class="font-semibold text-base text-[var(--foreground)]">2. AGY SDK Autonomous Agent Core</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">google.antigravity.Agent + Gemini 3.8 Flash (Vertex AI global)</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Reasoning Core</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-4 text-xs">
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">LLM Inference</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">Gemini 3.8 Flash on global (1M+ context window)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Automotive Skill</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">ASPICE SWE.1 - SWE.4 Rules &amp; Zero-Allocation C++</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Observability Hooks</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">@hooks.pre_tool_call_decide &amp; telemetry tracing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 3: MCP Gateway & Embeddings -->
+        <div onclick="selectLayer('mcp')" id="card-mcp" class="layer-card cursor-pointer p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-cyan-500/50 transition-all shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold text-sm">
+                L3
+              </div>
+              <div>
+                <h3 class="font-semibold text-base text-[var(--foreground)]">3. Integration Layer (Model Context Protocol - FastMCP)</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">Stdio JSON-RPC Transport + Voyage AI Embedding Generator</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]">FastMCP Server</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Exposed MCP Tools</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">atlas_vector_search, atlas_get_document, atlas_find, atlas_aggregate</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">Embedding Pipeline</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">Voyage AI (voyage-3.5, 1024-dimensional query vector)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 4: Knowledge Base & Vector DB -->
+        <div onclick="selectLayer('db')" id="card-db" class="layer-card cursor-pointer p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-emerald-500/50 transition-all shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">
+                L4
+              </div>
+              <div>
+                <h3 class="font-semibold text-base text-[var(--foreground)]">4. Knowledge &amp; Vector Database (MongoDB Atlas)</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">Unified Document Store &amp; $vectorSearch on cluster.mongodb.net</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">score_db</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">requirements Collection</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">ASPICE standards, ISO 26262 failure modes, S-CORE guides</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">requirements_vector_index</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">HNSW Cosine Vector Index (1024 dims on path "embedding")</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier 5: Output Deliverables -->
+        <div onclick="selectLayer('output')" id="card-output" class="layer-card cursor-pointer p-5 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-amber-500/50 transition-all shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-sm">
+                L5
+              </div>
+              <div>
+                <h3 class="font-semibold text-base text-[var(--foreground)]">5. Verified Automotive Deliverables (ASPICE Compliant)</h3>
+                <p class="text-xs text-[var(--muted-foreground)]">Traceable Requirements, ASIL-B C++ Code, and GoogleTest Suite</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Deliverables</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-4 text-xs">
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">SWE.1 Requirements</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">requirements.rst (Sphinx-Needs REQ_001..006)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">SWE.3 Detailed Design</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">timed_command_queue.h (ASIL-B, Zero-Alloc)</div>
+            </div>
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-medium text-[var(--foreground)]">SWE.4 Unit Verification</div>
+              <div class="text-[var(--muted-foreground)] text-[11px] mt-0.5">timed_command_queue_enhanced_test.cpp</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Detail Drawer (4 cols) -->
+      <div class="lg:col-span-4">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm sticky top-4 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+            <span class="text-xs font-semibold uppercase text-[var(--muted-foreground)] tracking-wide">Component Inspector</span>
+          </div>
+
+          <div id="inspector-content" class="space-y-4">
+            <h3 id="inspect-title" class="text-lg font-bold text-[var(--foreground)]">2. AGY SDK Autonomous Agent Core</h3>
+            <p id="inspect-desc" class="text-sm text-[var(--muted-foreground)]">
+              Orchestrates the entire spec-to-code cycle using Google Gemini 3.8 Flash on Vertex AI. Enforces ASPICE standards through embedded domain skills.
+            </p>
+
+            <div class="space-y-2 pt-2 border-t border-[var(--border)]">
+              <div class="text-xs font-semibold uppercase text-[var(--muted-foreground)]">Technical Specifications</div>
+              <div id="inspect-specs" class="space-y-1.5 text-xs">
+                <div class="flex justify-between py-1 border-b border-[var(--border)]/50">
+                  <span class="text-[var(--muted-foreground)]">Runtime</span>
+                  <span class="font-mono text-[var(--foreground)]">google.antigravity.Agent</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-[var(--border)]/50">
+                  <span class="text-[var(--muted-foreground)]">Foundation Model</span>
+                  <span class="font-mono text-blue-400">gemini-3.8-flash (global)</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-[var(--border)]/50">
+                  <span class="text-[var(--muted-foreground)]">Context Window</span>
+                  <span class="font-mono text-[var(--foreground)]">1,048,576 tokens</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-[var(--border)]/50">
+                  <span class="text-[var(--muted-foreground)]">Execution Mode</span>
+                  <span class="font-mono text-emerald-400">AUTONOMOUS</span>
+                </div>
+                <div class="flex justify-between py-1">
+                  <span class="text-[var(--muted-foreground)]">Audit Hooks</span>
+                  <span class="font-mono text-[var(--foreground)]">Pre/Post Tool Decision</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+              <div class="text-xs font-semibold text-[var(--foreground)] mb-1">Key Responsibility:</div>
+              <div id="inspect-responsibility" class="text-xs text-[var(--muted-foreground)]">
+                Conducts semantic queries against MongoDB Atlas, reviews retrieved safety failure modes, formulates C++ memory guarantees, and generates traceable GoogleTest cases.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Protocol & Data Flow Highlights -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+      <h3 class="text-base font-semibold text-[var(--foreground)] mb-3">Protocol &amp; Security Highlights</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+          <div class="font-semibold text-blue-400 mb-1">1. Stdio FastMCP Transport</div>
+          <div class="text-[var(--muted-foreground)]">
+            Communication between the agent and MongoDB Atlas occurs over isolated process stdio (JSON-RPC 2.0). No public ports or unauthenticated HTTP endpoints are exposed.
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+          <div class="font-semibold text-emerald-400 mb-1">2. Grounded Atlas Vector Search</div>
+          <div class="text-[var(--muted-foreground)]">
+            Direct $vectorSearch queries match natural language prompts against verified ASPICE / ISO 26262 knowledge bases with Voyage-3.5 embeddings (1024d), preventing LLM hallucinations.
+          </div>
+        </div>
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+          <div class="font-semibold text-purple-400 mb-1">3. End-to-End Traceability</div>
+          <div class="text-[var(--muted-foreground)]">
+            Every step is recorded in OpenTelemetry JSON schema: prompt tokens, MCP tool call arguments, vector relevance scores, C++ code generation, and test linkage.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const layerData = {
+      client: {
+        title: "1. Client & SDLC Integration Layer",
+        desc: "Ingests production automotive source code (Eclipse S-CORE) and connects to continuous integration workflows.",
+        specs: [
+          ["Input Artifact", "timed_command_queue.h / .cpp"],
+          ["Target Standards", "ISO 26262 ASIL-B / ASPICE SWE.1-4"],
+          ["CI/CD Triggers", "Horizon SDLC, Jenkins, Argo CD"],
+          ["Source Lines", "300+ C++ lines ingested"],
+        ],
+        resp: "Provides un-enhanced code with unbounded intrusive queues to be hardened by the agent with strict safety constraints."
+      },
+      agent: {
+        title: "2. AGY SDK Autonomous Agent Core",
+        desc: "Orchestrates the entire spec-to-code cycle using Google Gemini 3.8 Flash on Vertex AI. Enforces ASPICE standards through embedded domain skills.",
+        specs: [
+          ["Runtime", "google.antigravity.Agent"],
+          ["Foundation Model", "gemini-3.8-flash (global)"],
+          ["Context Window", "1,048,576 tokens"],
+          ["Execution Mode", "AUTONOMOUS"],
+          ["Audit Hooks", "Pre/Post Tool Decision"],
+        ],
+        resp: "Conducts semantic queries against MongoDB Atlas, reviews retrieved safety failure modes, formulates C++ memory guarantees, and generates traceable GoogleTest cases."
+      },
+      mcp: {
+        title: "3. Integration Layer (Model Context Protocol - FastMCP)",
+        desc: "A standardized Stdio FastMCP bridge exposing MongoDB Atlas database operations as native LLM tools with dynamic embedding conversion.",
+        specs: [
+          ["Transport", "Stdio (JSON-RPC 2.0)"],
+          ["MCP Server File", "scripts/mcp_mongo_server.py"],
+          ["Tools Exposed", "atlas_vector_search, atlas_find, atlas_get_document"],
+          ["Embedding Model", "Voyage AI voyage-3.5 (1024d)"],
+          ["Latency", "Sub-second vector query processing"],
+        ],
+        resp: "Converts agent search requests into 1024-dimensional query vectors and executes MQL aggregation pipelines against MongoDB Atlas."
+      },
+      db: {
+        title: "4. Knowledge & Vector Database (MongoDB Atlas)",
+        desc: "Managed MongoDB Atlas cluster (cluster.mongodb.net) serving as the authoritative knowledge base and vector search engine.",
+        specs: [
+          ["Cluster Host", "cluster.mongodb.net"],
+          ["Database", "score_db"],
+          ["Collection", "requirements"],
+          ["Index Name", "requirements_vector_index"],
+          ["Similarity Metric", "Cosine (1024 dimensions)"],
+        ],
+        resp: "Stores indexed ASPICE SWE.1-4 processes, ISO 26262 hazard analyses, and S-CORE memory management rules, powering high-precision semantic retrieval."
+      },
+      output: {
+        title: "5. Verified Automotive Deliverables (ASPICE Compliant)",
+        desc: "Four production-grade deliverables produced, verified, and persisted directly to the workspace.",
+        specs: [
+          ["SWE.1 Requirements", "requirements.rst (Sphinx-Needs)"],
+          ["SWE.3 Detailed Design", "timed_command_queue.h (C++17)"],
+          ["SWE.4 Unit Tests", "timed_command_queue_enhanced_test.cpp"],
+          ["Trace Log", "OpenTelemetry JSON Schema"],
+          ["Cost per Cycle", "< $0.01 ($0.0083 USD)"],
+        ],
+        resp: "Provides 100% bi-directional requirement-to-code-to-test traceability for automotive functional safety certification audits."
+      }
+    };
+
+    function selectLayer(key) {
+      const data = layerData[key];
+      if (!data) return;
+
+      document.getElementById('inspect-title').textContent = data.title;
+      document.getElementById('inspect-desc').textContent = data.desc;
+      document.getElementById('inspect-responsibility').textContent = data.resp;
+
+      const specsContainer = document.getElementById('inspect-specs');
+      specsContainer.innerHTML = '';
+      data.specs.forEach(([k, v], idx) => {
+        const row = document.createElement('div');
+        row.className = `flex justify-between py-1 ${idx < data.specs.length - 1 ? 'border-b border-[var(--border)]/50' : ''}`;
+        row.innerHTML = `<span class="text-[var(--muted-foreground)]">${k}</span><span class="font-mono text-[var(--foreground)]">${v}</span>`;
+        specsContainer.appendChild(row);
+      });
+
+      document.querySelectorAll('.layer-card').forEach(c => {
+        c.classList.remove('ring-2', 'ring-blue-500', 'border-blue-500');
+      });
+      const selected = document.getElementById(`card-${key}`);
+      if (selected) {
+        selected.classList.add('ring-2', 'ring-blue-500', 'border-blue-500');
+      }
+    }
+  </script>
+</body>
+</html>

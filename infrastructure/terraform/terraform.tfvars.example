@@ -1,0 +1,6 @@
+gcp_project_id         = "your-gcp-project-id"
+gcp_region             = "europe-west3"
+gcp_zone               = "europe-west3-a"
+gke_cluster_name       = "hrzn-agentic-dev-gke"
+artifact_repository_id = "sdlc-agentic-repo"
+storage_bucket_name    = "your-gcp-project-artifacts"

@@ -1,8 +1,43 @@
+# Python & Virtual Environments
 .venv/
-.env
+venv/
+ENV/
 __pycache__/
 *.py[cod]
-.DS_Store
+*$py.class
+*.so
 
-# Locally generated ingestion output.
+# Environment Variables & Secrets
+.env
+.env.*
+*.env
+*.env.local
+env.sh
+set_env.sh
+*.key
+*.pem
+*credential*.json
+*service_account*.json
+
+# Terraform Secrets & Local State
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Never ignore example templates
+!*.example
+!.env.example
+
+# IDE & OS Artifacts
+.DS_Store
+.idea/
+.vscode/
+
+# Locally generated ingestion output
 /score_knowledge_base_dataset/generated/
+
+# Execution telemetry and run artifacts
+output/runs/
+
