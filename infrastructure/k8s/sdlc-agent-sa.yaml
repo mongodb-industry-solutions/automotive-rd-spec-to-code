@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sdlc-agent-sa
+  namespace: workflows
+  annotations:
+    iam.gke.io/gcp-service-account: sdlc-agent-runner@your-gcp-project-id.iam.gserviceaccount.com

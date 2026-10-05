@@ -1,0 +1,217 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: automotive-rag-spec-to-code
+  namespace: workflows
+spec:
+  entrypoint: execute-automotive-rag
+  arguments:
+    parameters:
+      - name: workflow_id
+        value: "wf-score-tcq-hardening-live"
+      - name: pipeline_type
+        value: "SCORE_SPEC_TO_CODE"
+      - name: failed_step
+        value: "harden_timed_command_queue"
+      - name: failure_log_uri
+        value: "samples/score_timed_queue_hazard.log"
+      - name: target_agent_id
+        value: "automotive-rag-agent"
+      - name: model_name
+        value: "gemini-3.8-flash"
+      - name: current_attempt
+        value: "1"
+      - name: max_attempts
+        value: "3"
+      - name: session_id
+        value: "sess-live-ui"
+      - name: gcp_project
+        value: "hrzn-agentic-framework-1"
+      - name: gcp_location
+        value: "global"
+
+  templates:
+    - name: execute-automotive-rag
+      serviceAccountName: sdlc-agent-sa
+      archiveLocation:
+        archiveLogs: false
+      inputs:
+        parameters:
+          - name: workflow_id
+          - name: pipeline_type
+          - name: failed_step
+          - name: failure_log_uri
+          - name: target_agent_id
+          - name: model_name
+          - name: current_attempt
+          - name: max_attempts
+          - name: session_id
+          - name: gcp_project
+          - name: gcp_location
+      container:
+        image: europe-west3-docker.pkg.dev/hrzn-agentic-framework-1/sdlc-agentic-repo/adk-agent-harness:latest
+        imagePullPolicy: Always
+        command: ["python3", "harness.py"]
+        args:
+          - "--workflow-id={{inputs.parameters.workflow_id}}"
+          - "--pipeline-type={{inputs.parameters.pipeline_type}}"
+          - "--failed-step={{inputs.parameters.failed_step}}"
+          - "--log-uri={{inputs.parameters.failure_log_uri}}"
+          - "--agent-id={{inputs.parameters.target_agent_id}}"
+          - "--model={{inputs.parameters.model_name}}"
+          - "--attempt={{inputs.parameters.current_attempt}}"
+          - "--max-attempts={{inputs.parameters.max_attempts}}"
+          - "--session-id={{inputs.parameters.session_id}}"
+        env:
+          - name: GCP_PROJECT_ID
+            value: "{{inputs.parameters.gcp_project}}"
+          - name: GCP_LOCATION
+            value: "{{inputs.parameters.gcp_location}}"
+          - name: HORIZON_ARTIFACT_BUCKET
+            value: "hrzn-agentic-dev-artifacts"
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_URI
+                optional: true
+          - name: MONGO_DB
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_DB
+                optional: true
+          - name: MONGO_COLLECTION
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_COLLECTION
+                optional: true
+          - name: VOYAGE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: VOYAGE_API_KEY
+                optional: true
+          - name: VOYAGE_MODEL
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: VOYAGE_MODEL
+                optional: true
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: automotive-rag-spec-to-code
+spec:
+  entrypoint: execute-automotive-rag
+  arguments:
+    parameters:
+      - name: workflow_id
+        value: "wf-score-tcq-hardening-live"
+      - name: pipeline_type
+        value: "SCORE_SPEC_TO_CODE"
+      - name: failed_step
+        value: "harden_timed_command_queue"
+      - name: failure_log_uri
+        value: "samples/score_timed_queue_hazard.log"
+      - name: target_agent_id
+        value: "automotive-rag-agent"
+      - name: model_name
+        value: "gemini-3.8-flash"
+      - name: current_attempt
+        value: "1"
+      - name: max_attempts
+        value: "3"
+      - name: session_id
+        value: "sess-live-ui"
+      - name: gcp_project
+        value: "hrzn-agentic-framework-1"
+      - name: gcp_location
+        value: "global"
+
+  templates:
+    - name: execute-automotive-rag
+      serviceAccountName: sdlc-agent-sa
+      archiveLocation:
+        archiveLogs: false
+      inputs:
+        parameters:
+          - name: workflow_id
+          - name: pipeline_type
+          - name: failed_step
+          - name: failure_log_uri
+          - name: target_agent_id
+          - name: model_name
+          - name: current_attempt
+          - name: max_attempts
+          - name: session_id
+          - name: gcp_project
+          - name: gcp_location
+      container:
+        image: europe-west3-docker.pkg.dev/hrzn-agentic-framework-1/sdlc-agentic-repo/adk-agent-harness:latest
+        imagePullPolicy: Always
+        command: ["python3", "harness.py"]
+        args:
+          - "--workflow-id={{inputs.parameters.workflow_id}}"
+          - "--pipeline-type={{inputs.parameters.pipeline_type}}"
+          - "--failed-step={{inputs.parameters.failed_step}}"
+          - "--log-uri={{inputs.parameters.failure_log_uri}}"
+          - "--agent-id={{inputs.parameters.target_agent_id}}"
+          - "--model={{inputs.parameters.model_name}}"
+          - "--attempt={{inputs.parameters.current_attempt}}"
+          - "--max-attempts={{inputs.parameters.max_attempts}}"
+          - "--session-id={{inputs.parameters.session_id}}"
+        env:
+          - name: GCP_PROJECT_ID
+            value: "{{inputs.parameters.gcp_project}}"
+          - name: GCP_LOCATION
+            value: "{{inputs.parameters.gcp_location}}"
+          - name: HORIZON_ARTIFACT_BUCKET
+            value: "hrzn-agentic-dev-artifacts"
+          - name: MONGO_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_URI
+                optional: true
+          - name: MONGO_DB
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_DB
+                optional: true
+          - name: MONGO_COLLECTION
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: MONGO_COLLECTION
+                optional: true
+          - name: VOYAGE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: VOYAGE_API_KEY
+                optional: true
+          - name: VOYAGE_MODEL
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-credentials
+                key: VOYAGE_MODEL
+                optional: true
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+

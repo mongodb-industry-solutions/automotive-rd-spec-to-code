@@ -1,0 +1,24 @@
+[AUTOSAR/MISRA STATIC SAFETY AUDIT]
+Component: score::message_passing::detail::TimedCommandQueue
+Source: score_lib/message_passing/include/score/message_passing/timed_command_queue.h
+Severity: HIGH / ASIL-B COMPLIANCE VIOLATION
+Timestamp: 2026-10-02T06:40:00Z
+
+CRITICAL FINDINGS & HAZARD TRACES:
+1. [HAZ-TCQ-001] [ISO 26262-6 Clause 7.4.5 / MISRA C++:2008 Rule 18-4-1]: Dynamic Heap Memory Violation
+   - Analysis: TimedCommandQueue intrusive design delegates allocation to upstream callers without enforcing static capacity bounds.
+   - Hazard: Risk of unbounded queue growth, memory fragmentation, or heap exhaustion in safety-critical vehicle control loops (ASIL-B).
+
+2. [HAZ-TCQ-002] [ASPICE SWE.1 / ISO 26262 Part 4 Clause 6.4.3]: Unhandled Queue Saturation
+   - Analysis: TimedCommandQueue lacks a deterministic overflow policy (no drop-oldest, reject-newest, or error signaling).
+   - Hazard: Silently accepting commands beyond timing deadlines or starving critical safety messages during burst conditions.
+
+3. [HAZ-TCQ-003] [ISO 26262 Part 6 Clause 8.4.4]: Lock Contention & Reentrancy Deadlock Risk
+   - Analysis: In ProcessQueue(), if an executed callback invokes RegisterImmediateEntry() or RegisterTimedEntry() on the same queue, reentrancy against non-recursive std::mutex causes system freeze.
+   - Hazard: Watchdog reset triggered due to blocked dispatcher thread.
+
+4. [HAZ-TCQ-004] [ASPICE SWE.1 & SWE.4]: Missing Requirement Traceability & Verification
+   - Analysis: No bidirectional traceability linking queue functions to Sphinx-Needs safety requirements or parameterized GoogleTest suites.
+
+RECOMMENDED REMEDIATION:
+Trigger Automotive Spec-to-Code Agent to query MongoDB Atlas knowledge base (Eclipse S-CORE, ISO 26262, MISRA), generate ASPICE SWE.1 requirements, refactor SWE.3 design with bounded zero-heap storage and deterministic overflow policies, and produce SWE.4 GoogleTest suite.
