@@ -1,7 +1,9 @@
 .git
-.env
+.gitignore
 .venv
-**/__pycache__
-score_knowledge_base_dataset
-tests
-*.md
+__pycache__
+*.py[cod]
+.env
+output
+sample_data/automotive-rd-spec-to-code-main/score_knowledge_base_dataset/generated
+*.zip
