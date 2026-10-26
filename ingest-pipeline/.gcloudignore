@@ -4,6 +4,7 @@
 .env
 .venv
 **/__pycache__/**
-score_knowledge_base_dataset/**
-tests/**
-Automotive Spec-to-Code Agent for Eclipse S-CORE.md
+*.py[cod]
+output/
+sample_data/generated/
+*.zip

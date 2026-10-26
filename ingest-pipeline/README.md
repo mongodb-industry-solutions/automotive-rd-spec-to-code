@@ -19,10 +19,10 @@ The application scans a source directory recursively. Each supported source file
 | `.md`     | Stores the first 200 lines as content.                                                                 |
 | `.puml`   | Stores the complete PlantUML source as content.                                                        |
 
-The bundled test data is under `sample_data/automotive-rd-spec-to-code-main/` and includes the ASPICE directory:
+The bundled test data is under `sample_data/` and includes the ASPICE directory:
 
 ```text
-sample_data/automotive-rd-spec-to-code-main/score_knowledge_base_dataset/01_eclipse_score/process_description/process/standards/aspice_40/swe/
+sample_data/01_eclipse_score/process_description/process/standards/aspice_40/swe/
 ```
 
 ## Requirements
@@ -74,7 +74,7 @@ To parse without writing JSON:
 .venv/bin/python main.py --source-dir sample_data --dry-run
 ```
 
-The generated output is ignored by Git. The bundled dataset currently produces 163 documents.
+The generated output is ignored by Git. The bundled dataset currently produces 161 documents.
 
 ## Ingest into MongoDB Atlas
 
@@ -101,7 +101,7 @@ Collection: requirements
 A successful run prints messages similar to:
 
 ```text
-Generated 163 embeddings with ... dimensions using voyage-3.5
+Generated 161 embeddings with ... dimensions using voyage-3.5
 Inserted to Mongo: score_db.requirements -> <document-id>
 ```
 

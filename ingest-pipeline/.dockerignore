@@ -5,5 +5,5 @@ __pycache__
 *.py[cod]
 .env
 output
-sample_data/automotive-rd-spec-to-code-main/score_knowledge_base_dataset/generated
+sample_data/generated
 *.zip

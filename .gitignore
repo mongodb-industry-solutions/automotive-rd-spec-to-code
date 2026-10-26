@@ -36,7 +36,8 @@ set_env.sh
 .vscode/
 
 # Locally generated ingestion output
-/score_knowledge_base_dataset/generated/
+ingest-pipeline/sample_data/generated/
+ingest-pipeline/output/
 
 # Execution telemetry and run artifacts
 output/runs/
